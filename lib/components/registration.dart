@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../database/users_database.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -19,10 +22,46 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String? _selectedCity;
   final _cities = ['Ташкент', 'Самарканд', 'Навои'];
 
-  void _register() {
-    if (_formKey.currentState!.validate()) {
+  // ====== РЕГИСТРАЦИЯ ======
+  Future<void> _register() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      // Для теста пока используем номер телефона как "email"
+      final email = "${_phoneController.text}@statusshop.uz";
+      const password = "temporary123"; // Можно заменить на генератор пароля
+
+      // 1️⃣ Создаём пользователя в Firebase Auth
+      final userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      // 2️⃣ Сохраняем профиль в Firestore
+      final db = UserDatabase();
+      await db.addUser({
+        'uid': userCredential.user!.uid,
+        'name': _nameController.text.trim(),
+        'surname': _surnameController.text.trim(),
+        'company': _companyController.text.trim(),
+        'position': _positionController.text.trim(),
+        'city': _selectedCity,
+        'phone': _phoneController.text.trim(),
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      // 3️⃣ Уведомление
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Регистрация успешно выполнена!')),
+        const SnackBar(content: Text('Аккаунт успешно создан!')),
+      );
+
+      // 4️⃣ Переход на страницу логина
+      Navigator.pushNamed(context, '/login');
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка Firebase: ${e.message}')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка: $e')),
       );
     }
   }
@@ -44,7 +83,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               Container(
                 margin: const EdgeInsets.only(top: 20, bottom: 30),
                 child: Image.asset(
-                  'assets/images/logo.png', 
+                  'assets/images/logo.png',
                   width: 200,
                   height: 100,
                   fit: BoxFit.contain,
