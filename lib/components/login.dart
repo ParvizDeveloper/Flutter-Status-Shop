@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../base/local_storage.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -8,15 +10,28 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _auth = FirebaseAuth.instance;
+  bool _loading = false;
 
-  void _login() {
-    if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Вход выполнен успешно!')),
+  Future<void> _login() async {
+    setState(() => _loading = true);
+    try {
+      await _auth.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
       );
+
+      await LocalStorage.setLoggedIn(true);
+
+      Navigator.pushReplacementNamed(context, '/mainpage');
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'Ошибка входа')),
+      );
+    } finally {
+      setState(() => _loading = false);
     }
   }
 
@@ -28,156 +43,85 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // ====== ЛОГОТИП ======
-              Container(
-                margin: const EdgeInsets.only(top: 20, bottom: 90),
-                child: Image.asset(
-                  'assets/images/logo.png', // <-- тот же логотип
-                  width: 200,
-                  height: 100,
-                  fit: BoxFit.contain,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 20),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 40),
+                Image.asset('assets/images/logo.png', width: 180, height: 80),
+                const SizedBox(height: 20),
+                const Text(
+                  'Вход в аккаунт',
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                 ),
-              ),
+                const SizedBox(height: 40),
+                _buildInput(_emailController, 'Email'),
+                _buildInput(_passwordController, 'Пароль', obscure: true),
+                const SizedBox(height: 30),
 
-              // ====== ЗАГОЛОВОК ======
-              const Text(
-                'Вход в аккаунт',
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // ====== ФОРМА ======
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    _buildInput(
-                      controller: _phoneController,
-                      label: 'Номер телефона (+998 ** *** ** **)',
-                      keyboardType: TextInputType.phone,
-                      validator: (v) {
-                        if (v == null || v.isEmpty) {
-                          return 'Введите номер телефона';
-                        }
-                        if (!RegExp(r'^\+998\d{9}$').hasMatch(v)) {
-                          return 'Формат должен быть: +998XXXXXXXXX';
-                        }
-                        return null;
-                      },
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _loading ? null : _login,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: redColor,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                    _buildInput(
-                      controller: _passwordController,
-                      label: 'Пароль',
-                      obscureText: true,
-                      validator: (v) =>
-                          v == null || v.isEmpty ? 'Введите пароль' : null,
-                    ),
-                    const SizedBox(height: 32),
-                    
-
-                    // ====== КНОПКА ВОЙТИ ======
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _login,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: redColor,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                    child: _loading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            'Войти',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600),
                           ),
-                        ),
-                        child: const Text(
-                          'Войти',
+                  ),
+                ),
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: () => Navigator.pushNamed(context, '/registration'),
+                  child: RichText(
+                    text: const TextSpan(
+                      text: 'Нет аккаунта? ',
+                      style: TextStyle(color: Colors.black87, fontSize: 15),
+                      children: [
+                        TextSpan(
+                          text: 'Зарегистрироваться',
                           style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
+                            color: blueColor,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                    const SizedBox(height: 20),
-
-                    // ====== ЕЩЁ НЕТ АККАУНТА ======
-                    GestureDetector(
-                      onTap: () => Navigator.pushNamed(context, '/register'),
-                      child: RichText(
-                        text: TextSpan(
-                          text: 'Ещё нет аккаунта? ',
-                          style: const TextStyle(
-                            color: Colors.black87,
-                            fontSize: 15,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: 'Создать',
-                              style: TextStyle(
-                                color: blueColor,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-
-                    // ====== КОПИРАЙТ ======
-                    const Text(
-                      '© 2025 Все права защищены',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  // ====== ОДНО ПОЛЕ ВВОДА ======
-  Widget _buildInput({
-    required TextEditingController controller,
-    required String label,
-    TextInputType keyboardType = TextInputType.text,
-    bool obscureText = false,
-    String? Function(String?)? validator,
-  }) {
+  Widget _buildInput(TextEditingController controller, String label,
+      {bool obscure = false}) {
     const underlineColor = Color(0xFFE53935);
-
     return Padding(
-      padding: const EdgeInsets.only(bottom: 18),
-      child: TextFormField(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextField(
         controller: controller,
-        validator: validator,
-        keyboardType: keyboardType,
-        obscureText: obscureText,
-        cursorColor: underlineColor,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.black87),
-          focusedBorder: const UnderlineInputBorder(
+        obscureText: obscure,
+        decoration: const InputDecoration(
+          focusedBorder: UnderlineInputBorder(
             borderSide: BorderSide(color: underlineColor, width: 2),
           ),
-          enabledBorder: const UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.black26),
-          ),
-        ),
+        ).copyWith(labelText: label),
       ),
     );
   }

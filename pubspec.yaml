@@ -8,15 +8,19 @@ environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
+  shared_preferences: ^2.3.3
+  image_picker: ^1.1.1
   flutter:
     sdk: flutter
   firebase_core: ^3.5.0
   firebase_auth: ^5.3.1
   google_sign_in: ^6.2.1
   cloud_firestore: ^5.4.4
+  path_provider: ^2.1.4
 
     
   cupertino_icons: ^1.0.8
+  connectivity_plus: ^7.0.0
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
