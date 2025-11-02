@@ -30,11 +30,16 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/images/icon.png"
+  image_path: 
+    "assets/images/icon.png"
+
 
   flutter_lints: ^5.0.0
 
 flutter:
   assets:
     - assets/images/logo.png
+    - assets/images/sale_banner.png
+    - assets/images/product_sample.png
+    
   uses-material-design: true
