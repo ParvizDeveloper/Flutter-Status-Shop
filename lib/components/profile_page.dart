@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../base/local_storage.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -10,7 +10,19 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  Map<String, String>? _userData;
+  final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
+
+  bool _editing = false;
+  bool _saving = false;
+
+  final _nameController = TextEditingController();
+  final _companyController = TextEditingController();
+  final _positionController = TextEditingController();
+  final _cityController = TextEditingController();
+
+  String _email = '';
+  String _phone = '';
 
   @override
   void initState() {
@@ -19,126 +31,228 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _loadUserData() async {
-    final data = await LocalStorage.readUserFromTxt();
-    setState(() => _userData = data);
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    final doc = await _firestore.collection('users').doc(user.uid).get();
+    if (doc.exists) {
+      final data = doc.data()!;
+      setState(() {
+        _nameController.text = data['name'] ?? '';
+        _companyController.text = data['company'] ?? '';
+        _positionController.text = data['position'] ?? '';
+        _cityController.text = data['city'] ?? '';
+        _email = data['email'] ?? '';
+        _phone = data['phone'] ?? '';
+      });
+    }
   }
 
-  Future<void> _logout() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Выход из аккаунта'),
-        content: const Text('Вы уверены, что хотите выйти из аккаунта?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Отмена'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
-            child: const Text('Выйти'),
-          ),
-        ],
-      ),
-    );
+  Future<void> _saveChanges() async {
+    final user = _auth.currentUser;
+    if (user == null) return;
 
-    if (confirm == true) {
-      await FirebaseAuth.instance.signOut();
-      await LocalStorage.setLoggedIn(false);
-      if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-      }
-    }
+    setState(() => _saving = true);
+
+    await _firestore.collection('users').doc(user.uid).update({
+      'name': _nameController.text.trim(),
+      'company': _companyController.text.trim(),
+      'position': _positionController.text.trim(),
+      'city': _cityController.text.trim(),
+    });
+
+    setState(() {
+      _editing = false;
+      _saving = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Данные успешно обновлены')),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     const redColor = Color(0xFFE53935);
 
-    if (_userData == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
     return Scaffold(
+      backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
-        title: const Text('Профиль'),
-        backgroundColor: redColor,
-        automaticallyImplyLeading: false,
+        backgroundColor: Colors.white,
+        elevation: 1,
+        centerTitle: true,
+        title: const Text(
+          'Профиль',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            const CircleAvatar(
-              radius: 50,
-              backgroundImage: AssetImage('assets/images/avatar_placeholder.png'),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // 🧑‍💼 Верхняя секция
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
             ),
-            const SizedBox(height: 20),
-            Text(
-              '${_userData!['name']} ${_userData!['surname']}',
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 10),
-            _buildInfoTile('Компания', _userData!['company']),
-            _buildInfoTile('Должность', _userData!['position']),
-            _buildInfoTile('Город', _userData!['city']),
-            _buildInfoTile('Телефон', _userData!['phone']),
-            _buildInfoTile('Email', _userData!['email']),
-            const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _logout,
-                icon: const Icon(Icons.exit_to_app),
-                label: const Text('Выйти из аккаунта'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: redColor,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+            child: Row(
+              children: [
+                const CircleAvatar(
+                  radius: 40,
+                  backgroundImage: AssetImage('assets/images/profile_avatar.png'),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(_nameController.text.isNotEmpty
+                          ? _nameController.text
+                          : 'Пользователь'),
+                      const SizedBox(height: 4),
+                      Text(_email, style: const TextStyle(color: Colors.grey)),
+                    ],
                   ),
                 ),
-              ),
+                IconButton(
+                  icon: const Icon(Icons.logout, color: Colors.grey),
+                  onPressed: () async {
+                    await _auth.signOut();
+                    if (context.mounted) {
+                      Navigator.pushReplacementNamed(context, '/login');
+                    }
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 16),
+
+          // ⚙️ Раздел "Личные данные"
+          _sectionTitle('Личные данные'),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                _editableField('Имя', _nameController),
+                _editableField('Компания', _companyController),
+                _editableField('Должность', _positionController),
+                _editableField('Город', _cityController),
+                _readonlyField('Телефон', _phone),
+                _readonlyField('E-mail', _email),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          if (_editing)
+            _saving
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(12),
+                      child: CircularProgressIndicator(color: redColor),
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: ElevatedButton(
+                      onPressed: _saveChanges,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: redColor,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('Сохранить изменения',
+                          style:
+                              TextStyle(color: Colors.white, fontSize: 16)),
+                    ),
+                  ),
+
+          const SizedBox(height: 24),
+
+          // 🔧 Остальные секции
+          _sectionTitle('Настройки'),
+          _settingItem(Icons.shopping_bag_outlined, 'Мои заказы'),
+          _settingItem(Icons.rate_review_outlined, 'Мои отзывы'),
+          _settingItem(Icons.lock_outline, 'Конфиденциальность'),
+          _settingItem(Icons.language_outlined, 'Язык интерфейса'),
+          _settingItem(Icons.help_outline, 'Помощь'),
+
+          const SizedBox(height: 60),
+        ],
       ),
     );
   }
 
-  Widget _buildInfoTile(String title, String? value) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.grey.shade300),
+  // 🔹 Заголовок секции
+  Widget _sectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontWeight: FontWeight.w500),
-          ),
-          Flexible(
-            child: Text(
-              value ?? '',
-              textAlign: TextAlign.right,
-              style: const TextStyle(color: Colors.black87),
-            ),
-          ),
-        ],
+    );
+  }
+
+  // 🔹 Редактируемое поле
+  Widget _editableField(String label, TextEditingController controller) {
+    const redColor = Color(0xFFE53935);
+
+    return ListTile(
+      title: Text(label),
+      subtitle: _editing
+          ? TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                hintText: label,
+                focusedBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(color: redColor),
+                ),
+              ),
+            )
+          : Text(controller.text.isNotEmpty ? controller.text : '—'),
+      trailing: !_editing
+          ? IconButton(
+              icon: const Icon(Icons.edit_outlined, color: redColor),
+              onPressed: () => setState(() => _editing = true),
+            )
+          : null,
+    );
+  }
+
+  // 🔹 Поле только для чтения
+  Widget _readonlyField(String label, String value) {
+    return ListTile(
+      title: Text(label),
+      subtitle: Text(value.isNotEmpty ? value : '—'),
+      enabled: false,
+    );
+  }
+
+  // 🔹 Пункт меню (как у Uzum)
+  Widget _settingItem(IconData icon, String title) {
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: Icon(icon, color: Colors.redAccent),
+        title: Text(title,
+            style:
+                const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('$title — раздел в разработке')),
+          );
+        },
       ),
     );
   }

@@ -41,5 +41,6 @@ flutter:
     - assets/images/logo.png
     - assets/images/sale_banner.png
     - assets/images/product_sample.png
+    - assets/images/
     
   uses-material-design: true
