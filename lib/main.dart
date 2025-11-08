@@ -8,6 +8,7 @@ import 'components/registration.dart';
 import 'pages/mainpage.dart';
 import 'components/profile_page.dart';
 import 'firebase_options.dart';
+import 'pages/product_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +31,9 @@ class StatusShopApp extends StatelessWidget {
         '/registration': (_) => const RegistrationScreen(),
         '/mainpage': (_) => const MainPage(),
         '/profile': (_) => const ProfilePage(),
+        '/product': (_) => const ProductPage(
+        product: {}, 
+      ),
       },
     );
   }

@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../pages/product_page.dart'; // ✅ импорт страницы товара
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
+
+  // ✅ Форматирование цены
+  String formatPrice(num price) {
+    final formatter = NumberFormat('#,###', 'ru');
+    return '${formatter.format(price)} UZS';
+  }
 
   @override
   Widget build(BuildContext context) {
     const redColor = Color(0xFFE53935);
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
@@ -101,7 +109,6 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
 
-
                   // 🔥 Акции / баннеры
                   Padding(
                     padding: const EdgeInsets.all(16),
@@ -123,21 +130,10 @@ class HomePage extends StatelessWidget {
                     child: ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       scrollDirection: Axis.horizontal,
-                      itemCount: 6,
+                      itemCount: _popularProducts.length,
                       itemBuilder: (context, index) {
-                        final product = [
-                          {'name': 'Футболка Статус', 'price': '95 000 UZS'},
-                          {'name': 'Худи Oversize', 'price': '175 000 UZS'},
-                          {'name': 'ЭКО сумка', 'price': '55 000 UZS'},
-                          {'name': 'Термо винил PU', 'price': '45 000 UZS'},
-                          {'name': 'Кепка Classic', 'price': '80 000 UZS'},
-                          {'name': 'DTF Пленка', 'price': '120 000 UZS'},
-                        ][index];
-
-                        return _productCard(
-                          product['name']!,
-                          product['price']!,
-                        );
+                        final product = _popularProducts[index];
+                        return _productCard(context, product, redColor);
                       },
                     ),
                   ),
@@ -149,21 +145,10 @@ class HomePage extends StatelessWidget {
                     child: ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       scrollDirection: Axis.horizontal,
-                      itemCount: 6,
+                      itemCount: _recommendedProducts.length,
                       itemBuilder: (context, index) {
-                        final product = [
-                          {'name': 'Плоттер Cameo 5', 'price': '5 800 000 UZS'},
-                          {'name': 'Термопресс 38×38', 'price': '3 500 000 UZS'},
-                          {'name': 'DTF краска', 'price': '250 000 UZS'},
-                          {'name': 'Флекс Metallic', 'price': '70 000 UZS'},
-                          {'name': 'Сублимационная кружка', 'price': '25 000 UZS'},
-                          {'name': 'Мини-пресс', 'price': '1 200 000 UZS'},
-                        ][index];
-
-                        return _productCard(
-                          product['name']!,
-                          product['price']!,
-                        );
+                        final product = _recommendedProducts[index];
+                        return _productCard(context, product, redColor);
                       },
                     ),
                   ),
@@ -178,7 +163,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // 🔹 Виджет категории
+  // 🔹 Категории
   static Widget _categoryItem(IconData icon, String label) {
     return Padding(
       padding: const EdgeInsets.only(right: 12),
@@ -212,67 +197,136 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // 🔹 Карточка товара
-  static Widget _productCard(String name, String price) {
-    return Container(
-      width: 160,
-      margin: const EdgeInsets.only(right: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.15),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
+  // 🔹 Карточка товара с переходом
+  Widget _productCard(
+      BuildContext context, Map<String, dynamic> product, Color redColor) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 350),
+            pageBuilder: (_, __, ___) => ProductPage(product: product),
+            transitionsBuilder: (_, animation, __, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(14)),
-            child: Image.asset(
-              'assets/images/product_sample.png',
-              height: 140,
-              width: double.infinity,
-              fit: BoxFit.cover,
+        );
+      },
+      child: Container(
+        width: 160,
+        margin: const EdgeInsets.only(right: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.15),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w500, fontSize: 14)),
-                const SizedBox(height: 4),
-                Text(price,
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(14)),
+              child: Image.asset(
+                'assets/images/product_sample.png',
+                height: 140,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(product['name'],
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w500, fontSize: 14)),
+                  const SizedBox(height: 4),
+                  Text(
+                    formatPrice(product['price']), // ✅ форматирование цены
                     style: const TextStyle(
                         color: Colors.redAccent,
                         fontWeight: FontWeight.bold,
-                        fontSize: 15)),
-                const SizedBox(height: 6),
-                Container(
-                  alignment: Alignment.center,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    color: Colors.redAccent,
-                    borderRadius: BorderRadius.circular(8),
+                        fontSize: 15),
                   ),
-                  child: const Text(
-                    'В корзину',
-                    style: TextStyle(color: Colors.white, fontSize: 14),
+                  const SizedBox(height: 6),
+                  Container(
+                    alignment: Alignment.center,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'В корзину',
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
+
+// 📦 Популярные товары
+final List<Map<String, dynamic>> _popularProducts = [
+  {
+    'name': 'Футболка Статус',
+    'price': 95000,
+    'images': ['assets/images/product_sample.png'],
+    'description': 'Универсальная футболка из качественного текстиля.',
+    'characteristics': {'Материал': 'Хлопок 100%', 'Размеры': 'S-XL'},
+    'type': 'clothes',
+  },
+  {
+    'name': 'Худи Oversize',
+    'price': 175000,
+    'images': ['assets/images/product_sample.png'],
+    'description': 'Мягкий и тёплый худи для повседневного ношения.',
+    'characteristics': {'Материал': 'Флис', 'Размеры': 'S-XXL'},
+    'type': 'clothes',
+  },
+  {
+    'name': 'Термо винил PU',
+    'price': 140000,
+    'images': List.generate(41, (i) => 'assets/vinill/pu/pu_${i + 1}.png'),
+    'description': 'Профессиональный термо-винил PU — яркий и гибкий.',
+    'characteristics': {
+      'Ширина рулона': '47 см',
+      'Температура': '150°C',
+      'Время прессования': '8 секунд'
+    },
+    'type': 'vinil_pu',
+  },
+];
+
+// 💡 Рекомендуемые товары
+final List<Map<String, dynamic>> _recommendedProducts = [
+  {
+    'name': 'Плоттер Cameo 5',
+    'price': 5800000,
+    'images': ['assets/images/product_sample.png'],
+    'description': 'Современный плоттер для резки винила и текстиля.',
+    'characteristics': {'Ширина резки': '30 см', 'Точность': '0.1 мм'},
+    'type': 'equipment',
+  },
+  {
+    'name': 'Термопресс 38×38',
+    'price': 3500000,
+    'images': ['assets/images/product_sample.png'],
+    'description': 'Надёжный термопресс для нанесения изображений.',
+    'characteristics': {'Температура': '180°C', 'Время нагрева': '15 секунд'},
+    'type': 'equipment',
+  },
+];
