@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // ✅ импорт для форматирования чисел
+import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProductPage extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -10,32 +12,29 @@ class ProductPage extends StatefulWidget {
 }
 
 class _ProductPageState extends State<ProductPage> {
-  int _quantity = 1;
+  double _meters = 1.0;
   int _selectedColorIndex = 0;
+  final _controller = TextEditingController(text: '1.0');
 
-  // ✅ Функция форматирования цены
+  // ✅ Форматирование цены
   String formatPrice(num value) {
     final formatter = NumberFormat('#,###', 'ru');
     return '${formatter.format(value)} UZS';
   }
 
-  // ✅ Вычисление общей суммы
+  // ✅ Общая сумма
   double get totalPrice {
     final price = widget.product['price'];
-    if (price is num) {
-      return price.toDouble() * _quantity;
-    } else if (price is String) {
-      return double.tryParse(price.replaceAll(' ', ''))! * _quantity;
-    } else {
-      return 0;
-    }
+    final basePrice = (price is num)
+        ? price.toDouble()
+        : double.tryParse(price.toString().replaceAll(' ', '')) ?? 0;
+    return basePrice * _meters;
   }
 
   @override
   Widget build(BuildContext context) {
     final product = widget.product;
     const redColor = Color(0xFFE53935);
-
     final List<String> images = List<String>.from(product['images'] ?? []);
 
     return Scaffold(
@@ -55,7 +54,7 @@ class _ProductPageState extends State<ProductPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🖼️ Галерея картинок
+            // 🖼️ Изображение товара
             Center(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
@@ -69,7 +68,7 @@ class _ProductPageState extends State<ProductPage> {
             ),
             const SizedBox(height: 20),
 
-            // 🎨 Цвета (если есть)
+            // 🎨 Выбор цвета
             if (images.length > 1) ...[
               const Text(
                 'Выберите цвет:',
@@ -77,31 +76,31 @@ class _ProductPageState extends State<ProductPage> {
               ),
               const SizedBox(height: 10),
               SizedBox(
-                height: 100,
-                child: GridView.builder(
+                height: 90,
+                child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: images.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 1,
-                    mainAxisExtent: 80,
-                    mainAxisSpacing: 10,
-                  ),
                   itemBuilder: (context, index) {
                     final isSelected = index == _selectedColorIndex;
                     return GestureDetector(
                       onTap: () => setState(() => _selectedColorIndex = index),
                       child: Container(
-                        padding: const EdgeInsets.all(4),
+                        margin: const EdgeInsets.only(right: 8),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: isSelected ? Colors.redAccent : Colors.transparent,
-                            width: 2,
+                            color: isSelected ? Colors.redAccent : Colors.grey.shade300,
+                            width: isSelected ? 2.5 : 1.5,
                           ),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(6),
-                          child: Image.asset(images[index], fit: BoxFit.cover),
+                          child: Image.asset(
+                            images[index],
+                            height: 70,
+                            width: 70,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     );
@@ -111,34 +110,40 @@ class _ProductPageState extends State<ProductPage> {
               const SizedBox(height: 20),
             ],
 
-            // 📏 Количество
+            // 📏 Ввод метров
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Количество:',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          if (_quantity > 1) {
-                            setState(() => _quantity--);
-                          }
-                        },
-                        icon: const Icon(Icons.remove_circle_outline),
+                  const Text(
+                    'Метры:',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _controller,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    onChanged: (val) {
+                      setState(() {
+                        _meters = double.tryParse(val.replaceAll(',', '.')) ?? 0.0;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Введите количество метров',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      Text('$_quantity', style: const TextStyle(fontSize: 18)),
-                      IconButton(
-                        onPressed: () => setState(() => _quantity++),
-                        icon: const Icon(Icons.add_circle_outline),
-                      ),
-                    ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Цена за 1 метр: 140 000 UZS',
+                    style: TextStyle(color: Colors.grey, fontSize: 13),
                   ),
                 ],
               ),
@@ -184,15 +189,17 @@ class _ProductPageState extends State<ProductPage> {
                     const Text('Описание',
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                     const SizedBox(height: 8),
-                    Text(product['description'],
-                        style: const TextStyle(fontSize: 14, height: 1.5)),
+                    Text(
+                      product['description'],
+                      style: const TextStyle(fontSize: 14, height: 1.5),
+                    ),
                   ],
                 ),
               ),
 
             const SizedBox(height: 20),
 
-            // 💰 Цена
+            // 💰 Итого
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -203,11 +210,14 @@ class _ProductPageState extends State<ProductPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text('Итого:',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                   Text(
-                    formatPrice(totalPrice), // ✅ красиво отформатированная цена
+                    formatPrice(totalPrice),
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold, color: redColor),
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: redColor),
                   ),
                 ],
               ),
@@ -230,6 +240,12 @@ class _ProductPageState extends State<ProductPage> {
                   ),
                 ),
                 onPressed: () {
+                  if (_meters <= 0) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Введите количество метров')),
+                    );
+                    return;
+                  }
                   _addToCart(product);
                   ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Товар добавлен в корзину')));
@@ -244,18 +260,33 @@ class _ProductPageState extends State<ProductPage> {
     );
   }
 
-  // 🧩 Добавление товара в корзину
-  void _addToCart(Map<String, dynamic> product) {
-    final item = {
+  // 🧩 Добавление товара в корзину Firestore
+  void _addToCart(Map<String, dynamic> product) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Пожалуйста, войдите в аккаунт')),
+      );
+      return;
+    }
+
+    final cartRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .collection('cart');
+
+    final tag = '${product['type']}_${_selectedColorIndex + 1}';
+
+    await cartRef.doc(tag).set({
       'name': product['name'],
-      'quantity': _quantity,
-      'price': product['price'],
+      'meters': _meters,
+      'price': 140000,
       'total': totalPrice,
       'image': product['images'][_selectedColorIndex],
-      'tag': '${product['type']}_${_selectedColorIndex + 1}',
-    };
+      'tag': tag,
+      'createdAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
 
-    print('Добавлено в корзину: $item');
-    // TODO: добавить в Firestore или локальную корзину
+    print('✅ Товар добавлен в корзину Firestore');
   }
 }
