@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class ProductPage extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -13,29 +14,38 @@ class ProductPage extends StatefulWidget {
 
 class _ProductPageState extends State<ProductPage> {
   double _meters = 1.0;
+  int _quantity = 1;
+  String? _selectedSize;
   int _selectedColorIndex = 0;
-  final _controller = TextEditingController(text: '1.0');
+  final _controller = TextEditingController(text: '1');
 
-  // ✅ Форматирование цены
+  // ---------- FORMAT PRICE ----------
   String formatPrice(num value) {
     final formatter = NumberFormat('#,###', 'ru');
     return '${formatter.format(value)} UZS';
   }
 
-  // ✅ Общая сумма
+  // ---------- TOTAL ----------
   double get totalPrice {
     final price = widget.product['price'];
     final basePrice = (price is num)
         ? price.toDouble()
         : double.tryParse(price.toString().replaceAll(' ', '')) ?? 0;
-    return basePrice * _meters;
+
+    if (widget.product['type'] == 'vinil') {
+      return basePrice * _meters;
+    } else {
+      return basePrice * _quantity;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final product = widget.product;
     const redColor = Color(0xFFE53935);
+
     final List<String> images = List<String>.from(product['images'] ?? []);
+    final type = product['type'];
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -49,12 +59,14 @@ class _ProductPageState extends State<ProductPage> {
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🖼️ Изображение товара
+
+            // ---------- IMAGE ----------
             Center(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
@@ -68,13 +80,14 @@ class _ProductPageState extends State<ProductPage> {
             ),
             const SizedBox(height: 20),
 
-            // 🎨 Выбор цвета
+            // ---------- COLORS ----------
             if (images.length > 1) ...[
               const Text(
                 'Выберите цвет:',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
+
               SizedBox(
                 height: 90,
                 child: ListView.builder(
@@ -110,183 +123,275 @@ class _ProductPageState extends State<ProductPage> {
               const SizedBox(height: 20),
             ],
 
-            // 📏 Ввод метров
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Метры:',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _controller,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    onChanged: (val) {
-                      setState(() {
-                        _meters = double.tryParse(val.replaceAll(',', '.')) ?? 0.0;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Введите количество метров',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Цена за 1 метр: 140 000 UZS',
-                    style: TextStyle(color: Colors.grey, fontSize: 13),
-                  ),
-                ],
-              ),
-            ),
+            // ---------- METERS / QUANTITY / SIZE ----------
+            if (type == 'vinil') _buildMetersInput(),
+            if (type == 'clothes' || type == 'oversize') _buildClothesInput(type),
+            if (type == 'equipment' || type == 'dtf' || type == 'cups') _buildQuantityInput(),
 
             const SizedBox(height: 20),
 
-            // 📄 Характеристики
-            if (product['characteristics'] != null)
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Характеристики',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                    const SizedBox(height: 10),
-                    ...product['characteristics'].entries.map((e) => Text(
-                          '• ${e.key}: ${e.value}',
-                          style: const TextStyle(fontSize: 14),
-                        )),
-                  ],
-                ),
-              ),
+            // ---------- CHARACTERISTICS ----------
+            _buildInfoBlock('Характеристики', product['characteristics']),
+            const SizedBox(height: 16),
 
+            // ---------- DESCRIPTION ----------
+            _buildDescription(product['description']),
             const SizedBox(height: 20),
 
-            // 💬 Описание
-            if (product['description'] != null)
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Описание',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                    const SizedBox(height: 8),
-                    Text(
-                      product['description'],
-                      style: const TextStyle(fontSize: 14, height: 1.5),
-                    ),
-                  ],
-                ),
-              ),
-
-            const SizedBox(height: 20),
-
-            // 💰 Итого
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Итого:',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                  Text(
-                    formatPrice(totalPrice),
-                    style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: redColor),
-                  ),
-                ],
-              ),
-            ),
+            // ---------- TOTAL ----------
+            _buildTotal(redColor),
 
             const SizedBox(height: 30),
 
-            // 🛒 Добавить в корзину
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white),
-                label: const Text('Добавить в корзину',
-                    style: TextStyle(fontSize: 16, color: Colors.white)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: redColor,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                onPressed: () {
-                  if (_meters <= 0) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Введите количество метров')),
-                    );
-                    return;
-                  }
-                  _addToCart(product);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Товар добавлен в корзину')));
-                },
-              ),
-            ),
-
-            const SizedBox(height: 40),
+            // ---------- ADD TO CART BUTTON ----------
+            _buildAddToCartButton(redColor, product),
           ],
         ),
       ),
     );
   }
 
-  // 🧩 Добавление товара в корзину Firestore
-  void _addToCart(Map<String, dynamic> product) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Пожалуйста, войдите в аккаунт')),
-      );
-      return;
-    }
+  // ---------- METERS INPUT ----------
+  Widget _buildMetersInput() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
 
-    final cartRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('cart');
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Метры:',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+          const SizedBox(height: 8),
 
-    final tag = '${product['type']}_${_selectedColorIndex + 1}';
+          TextField(
+            controller: _controller,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            onChanged: (val) {
+              setState(() => _meters = double.tryParse(val.replaceAll(",", ".")) ?? 1);
+            },
+            decoration: InputDecoration(
+              hintText: 'Введите количество метров',
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
 
-    await cartRef.doc(tag).set({
-      'name': product['name'],
-      'meters': _meters,
-      'price': 140000,
-      'total': totalPrice,
-      'image': product['images'][_selectedColorIndex],
-      'tag': tag,
-      'createdAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+          const SizedBox(height: 8),
+          const Text(
+            'Цена за 1 метр: 140 000 UZS',
+            style: TextStyle(color: Colors.grey, fontSize: 13),
+          ),
+        ],
+      ),
+    );
+  }
 
-    print('✅ Товар добавлен в корзину Firestore');
+  // ---------- SIZE + QUANTITY FOR CLOTHES ----------
+  Widget _buildClothesInput(String type) {
+    final sizes = type == 'oversize'
+        ? ['M', 'L', 'XL']
+        : ['S', 'M', 'L', 'XL', 'XXL'];
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Выберите размер:',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+          const SizedBox(height: 10),
+
+          Wrap(
+            spacing: 10,
+            children: sizes.map((s) {
+              final selected = s == _selectedSize;
+              return ChoiceChip(
+                label: Text(s),
+                selected: selected,
+                onSelected: (_) => setState(() => _selectedSize = s),
+                selectedColor: Colors.redAccent,
+                labelStyle:
+                    TextStyle(color: selected ? Colors.white : Colors.black),
+              );
+            }).toList(),
+          ),
+
+          const SizedBox(height: 12),
+          _buildQuantityInput(),
+        ],
+      ),
+    );
+  }
+
+  // ---------- QUANTITY ----------
+  Widget _buildQuantityInput() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text('Количество:',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+
+        Row(
+          children: [
+            IconButton(
+              onPressed: () {
+                if (_quantity > 1) setState(() => _quantity--);
+              },
+              icon: const Icon(Icons.remove_circle_outline),
+            ),
+            Text('$_quantity', style: const TextStyle(fontSize: 18)),
+            IconButton(
+              onPressed: () => setState(() => _quantity++),
+              icon: const Icon(Icons.add_circle_outline),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ---------- CHARACTERISTICS ----------
+  Widget _buildInfoBlock(String title, Map? data) {
+    if (data == null) return const SizedBox();
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white, borderRadius: BorderRadius.circular(12),
+      ),
+
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          const SizedBox(height: 10),
+
+          ...data.entries.map((e) => Text('• ${e.key}: ${e.value}',
+              style: const TextStyle(fontSize: 14))),
+        ],
+      ),
+    );
+  }
+
+  // ---------- DESCRIPTION ----------
+  Widget _buildDescription(String? desc) {
+    if (desc == null) return const SizedBox();
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white, borderRadius: BorderRadius.circular(12),
+      ),
+
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Описание',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          const SizedBox(height: 8),
+
+          Text(desc, style: const TextStyle(fontSize: 14, height: 1.5)),
+        ],
+      ),
+    );
+  }
+
+  // ---------- TOTAL ----------
+  Widget _buildTotal(Color redColor) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white, borderRadius: BorderRadius.circular(12),
+      ),
+
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text('Итого:',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+
+          Text(
+            formatPrice(totalPrice),
+            style: TextStyle(
+                color: redColor, fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------- ADD TO CART ----------
+  Widget _buildAddToCartButton(Color redColor, Map<String, dynamic> product) {
+    return SizedBox(
+      width: double.infinity,
+
+      child: ElevatedButton.icon(
+        icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white),
+
+        label: const Text(
+          'Добавить в корзину',
+          style: TextStyle(fontSize: 16, color: Colors.white),
+        ),
+
+        style: ElevatedButton.styleFrom(
+          backgroundColor: redColor,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+
+        onPressed: () async {
+          if (product['type'] == 'clothes' && _selectedSize == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Выберите размер')),
+            );
+            return;
+          }
+
+          final user = FirebaseAuth.instance.currentUser;
+
+          if (user == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Войдите в аккаунт')),
+            );
+            return;
+          }
+
+          final itemId = '${product['type']}_${DateTime.now().millisecondsSinceEpoch}';
+
+          final item = {
+            'name': product['name'],
+            'type': product['type'],
+            'image': product['images'][_selectedColorIndex],
+            'price': product['price'],
+            'quantity': _quantity,
+            'meters': _meters,
+            'size': _selectedSize,
+            'total': totalPrice,
+            'tag': itemId,
+            'createdAt': FieldValue.serverTimestamp(),
+          };
+
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .collection('cart')
+              .doc(itemId)
+              .set(item);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('🛒 Товар добавлен в корзину')),
+          );
+        },
+      ),
+    );
   }
 }

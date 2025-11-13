@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../pages/product_page.dart';
+import 'home_page.dart'; // общий список товаров
+import 'package:intl/intl.dart';
 
 class CatalogPage extends StatefulWidget {
   const CatalogPage({super.key});
@@ -10,37 +13,43 @@ class CatalogPage extends StatefulWidget {
 class _CatalogPageState extends State<CatalogPage> {
   String _selectedCategory = 'Текстиль';
 
-  final Map<String, List<Map<String, String>>> categories = {
+  // 📦 Категории
+  final Map<String, List<String>> categoryMap = {
     'Текстиль': [
-      {'name': 'Футболка Статус', 'price': '95 000 UZS'},
-      {'name': 'Футболка Классик', 'price': '90 000 UZS'},
-      {'name': 'Худи', 'price': '175 000 UZS'},
-      {'name': 'Свитшот', 'price': '160 000 UZS'},
-      {'name': 'ЭКО сумка', 'price': '55 000 UZS'},
-      {'name': 'Кепка', 'price': '80 000 UZS'},
+      'Футболка Статус',
+      'Футболка Классик',
+      'Кепка',
+      'Худи',
+      'Свитшот',
+      'ЭКО сумка',
     ],
     'Термо винил': [
-      {'name': 'PU Flex', 'price': '45 000 UZS'},
-      {'name': 'PVC Flex', 'price': '40 000 UZS'},
-      {'name': 'Flock', 'price': '65 000 UZS'},
-      {'name': 'Stretch Foil', 'price': '70 000 UZS'},
-      {'name': 'Metalic', 'price': '75 000 UZS'},
-      {'name': 'Фосфор', 'price': '90 000 UZS'},
-      {'name': 'Рефлектор', 'price': '85 000 UZS'},
-      {'name': 'Silicon', 'price': '95 000 UZS'},
+      'PU Flex',
+      'PVC Flex',
+      'Flock',
+      'Stretch Foil',
+      'Metalic Flex',
+      'Фосфор Flex',
+      'Рефлектор Flex',
+      'Silicon Flex',
     ],
     'Оборудование': [
-      {'name': 'Плоттер Teneth 70см', 'price': '6 800 000 UZS'},
-      {'name': 'Cameo 5', 'price': '5 500 000 UZS'},
-      {'name': 'Термопресс 38×38', 'price': '3 500 000 UZS'},
-      {'name': 'Термопресс 60×40', 'price': '4 200 000 UZS'},
-      {'name': 'Термопресс для кружек', 'price': '1 500 000 UZS'},
-      {'name': 'Мини-пресс', 'price': '1 200 000 UZS'},
+      'Плоттер Teneth 70см',
+      'Cameo 5',
+      'Термопресс 38×38',
+      'Термопресс 60×40',
+      'Термопресс для кепок',
+      'Термопресс для кружек',
+      'Мини-пресс',
     ],
     'DTF материалы': [
-      {'name': 'DTF краска', 'price': '250 000 UZS'},
-      {'name': 'DTF плёнка', 'price': '120 000 UZS'},
-      {'name': 'DTF клей', 'price': '85 000 UZS'},
+      'DTF краска',
+      'DTF плёнка',
+      'DTF клей',
+    ],
+    'Кружки и термосы': [
+      'Сублимационная кружка',
+      'Термос для сублимации',
     ],
   };
 
@@ -48,7 +57,11 @@ class _CatalogPageState extends State<CatalogPage> {
   Widget build(BuildContext context) {
     const redColor = Color(0xFFE53935);
 
-    final items = categories[_selectedCategory]!;
+    // 🧩 Отбор товаров по категории
+    final items = allProducts
+        .where((p) =>
+            categoryMap[_selectedCategory]?.contains(p['name']) ?? false)
+        .toList();
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -69,7 +82,7 @@ class _CatalogPageState extends State<CatalogPage> {
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              children: categories.keys.map((cat) {
+              children: categoryMap.keys.map((cat) {
                 final isSelected = cat == _selectedCategory;
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
@@ -96,30 +109,58 @@ class _CatalogPageState extends State<CatalogPage> {
             ),
           ),
 
-          // 📦 Сетка товаров
+          // 🛍️ Сетка товаров
           Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: items.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisExtent: 250,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-              ),
-              itemBuilder: (context, index) {
-                final item = items[index];
-                return _productCard(item['name']!, item['price']!);
-              },
-            ),
+            child: items.isEmpty
+                ? const Center(
+                    child: Text(
+                      'Товары не найдены 😕',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    ),
+                  )
+                : GridView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: items.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisExtent: 250,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                    ),
+                    itemBuilder: (context, index) {
+                      final product = items[index];
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              transitionDuration:
+                                  const Duration(milliseconds: 300),
+                              pageBuilder: (_, __, ___) =>
+                                  ProductPage(product: product),
+                              transitionsBuilder:
+                                  (_, animation, __, child) => FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              ),
+                            ),
+                          );
+                        },
+                        child: _productCard(product),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
     );
   }
 
-  // 🔹 Карточка товара
-  Widget _productCard(String name, String price) {
+  // 🔹 Виджет карточки товара
+  Widget _productCard(Map<String, dynamic> product) {
+    const redColor = Color(0xFFE53935);
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -140,7 +181,7 @@ class _CatalogPageState extends State<CatalogPage> {
             borderRadius:
                 const BorderRadius.vertical(top: Radius.circular(14)),
             child: Image.asset(
-              'assets/images/product_sample.png',
+              product['images'][0],
               height: 130,
               width: double.infinity,
               fit: BoxFit.cover,
@@ -153,7 +194,7 @@ class _CatalogPageState extends State<CatalogPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  name,
+                  product['name'],
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -161,9 +202,9 @@ class _CatalogPageState extends State<CatalogPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  price,
+                  '${NumberFormat('#,###', 'ru').format(product['price'])} UZS',
                   style: const TextStyle(
-                      color: Colors.redAccent,
+                      color: redColor,
                       fontWeight: FontWeight.bold,
                       fontSize: 15),
                 ),
@@ -172,7 +213,7 @@ class _CatalogPageState extends State<CatalogPage> {
                   alignment: Alignment.center,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: Colors.redAccent,
+                    color: redColor,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(

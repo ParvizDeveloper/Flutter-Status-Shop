@@ -88,30 +88,39 @@ class CartPage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 12),
+
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(item['name'],
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 15)),
+                                Text(
+                                  item['name'],
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15,
+                                  ),
+                                ),
                                 const SizedBox(height: 4),
-                                Text('Метры: ${item['meters']}',
-                                    style: const TextStyle(
-                                        color: Colors.grey, fontSize: 13)),
+
+                                // 🟢 Динамический вывод параметров товара
+                                _buildItemDetails(item),
+
                                 const SizedBox(height: 4),
-                                Text(formatPrice(item['total']),
-                                    style: const TextStyle(
-                                        color: redColor,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15)),
+
+                                Text(
+                                  formatPrice(item['total']),
+                                  style: const TextStyle(
+                                    color: redColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
+
                           IconButton(
-                            icon: const Icon(Icons.delete_outline,
-                                color: Colors.redAccent),
+                            icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
                             onPressed: () {
                               FirebaseFirestore.instance
                                   .collection('users')
@@ -128,7 +137,7 @@ class CartPage extends StatelessWidget {
                 ),
               ),
 
-              // 💰 Итого + кнопка оформления
+              // ---------- TOTAL & ORDER ----------
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -146,14 +155,18 @@ class CartPage extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Итого:',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.w600)),
-                        Text(formatPrice(total),
-                            style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: redColor)),
+                        const Text(
+                          'Итого:',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          formatPrice(total),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: redColor,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 10),
@@ -163,8 +176,7 @@ class CartPage extends StatelessWidget {
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text(
-                                  'Оформление заказов будет доступно позже!'),
+                              content: Text('Оформление заказов будет доступно позже!'),
                             ),
                           );
                         },
@@ -175,11 +187,10 @@ class CartPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text('Оформить заказ',
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600)),
+                        child: const Text(
+                          'Оформить заказ',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
                       ),
                     ),
                   ],
@@ -192,6 +203,7 @@ class CartPage extends StatelessWidget {
     );
   }
 
+  // ---------- EMPTY CART ----------
   Widget _emptyCart(BuildContext context) {
     return Center(
       child: Padding(
@@ -219,14 +231,52 @@ class CartPage extends StatelessWidget {
                 backgroundColor: const Color(0xFFE53935),
                 padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-              child: const Text('Вернуться на главную',
-                  style: TextStyle(color: Colors.white, fontSize: 16)),
+              child: const Text(
+                'Вернуться на главную',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  // ---------- NEW: dynamic product info ----------
+  Widget _buildItemDetails(Map<String, dynamic> item) {
+    final type = item['type'];
+
+    if (type == 'vinil') {
+      return Text(
+        'Метры: ${item['meters']} м',
+        style: const TextStyle(color: Colors.grey, fontSize: 13),
+      );
+    }
+
+    if (type == 'clothes' || type == 'oversize') {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Размер: ${item['size']}',
+            style: const TextStyle(color: Colors.grey, fontSize: 13),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Количество: ${item['quantity']} шт',
+            style: const TextStyle(color: Colors.grey, fontSize: 13),
+          ),
+        ],
+      );
+    }
+
+    // equipment, dtf, cups
+    return Text(
+      'Количество: ${item['quantity']} шт',
+      style: const TextStyle(color: Colors.grey, fontSize: 13),
     );
   }
 }
