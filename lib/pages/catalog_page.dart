@@ -1,106 +1,98 @@
 import 'package:flutter/material.dart';
 import '../pages/product_page.dart';
-import 'home_page.dart'; // общий список товаров
+import '../pages/home_page.dart'; // чтобы получить allProducts
 import 'package:intl/intl.dart';
 
+
 class CatalogPage extends StatefulWidget {
-  const CatalogPage({super.key});
+  final String? preselectedCategory;   // ← ДОБАВЛЕН ПАРАМЕТР
+
+  const CatalogPage({super.key, this.preselectedCategory});
 
   @override
   State<CatalogPage> createState() => _CatalogPageState();
 }
 
 class _CatalogPageState extends State<CatalogPage> {
-  String _selectedCategory = 'Текстиль';
+  late String _selectedCategory;
 
-  // 📦 Категории
-  final Map<String, List<String>> categoryMap = {
-    'Текстиль': [
-      'Футболка Статус',
-      'Футболка Классик',
-      'Кепка',
-      'Худи',
-      'Свитшот',
-      'ЭКО сумка',
-    ],
-    'Термо винил': [
-      'PU Flex',
-      'PVC Flex',
-      'Flock',
-      'Stretch Foil',
-      'Metalic Flex',
-      'Фосфор Flex',
-      'Рефлектор Flex',
-      'Silicon Flex',
-    ],
-    'Оборудование': [
-      'Плоттер Teneth 70см',
-      'Cameo 5',
-      'Термопресс 38×38',
-      'Термопресс 60×40',
-      'Термопресс для кепок',
-      'Термопресс для кружек',
-      'Мини-пресс',
-    ],
-    'DTF материалы': [
-      'DTF краска',
-      'DTF плёнка',
-      'DTF клей',
-    ],
-    'Кружки и термосы': [
-      'Сублимационная кружка',
-      'Термос для сублимации',
-    ],
-  };
+  final List<String> categories = [
+    'Текстиль',
+    'Термо винил',
+    'DTF материалы',
+    'Сублимационные кружки',
+    'Оборудование',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Если категория пришла из HomePage → используем её
+    _selectedCategory = widget.preselectedCategory ?? 'Текстиль';
+  }
 
   @override
   Widget build(BuildContext context) {
     const redColor = Color(0xFFE53935);
 
-    // 🧩 Отбор товаров по категории
-    final items = allProducts
-        .where((p) =>
-            categoryMap[_selectedCategory]?.contains(p['name']) ?? false)
-        .toList();
+    // Фильтр товаров в зависимости от категории
+    List<Map<String, dynamic>> filtered = allProducts.where((p) {
+      switch (_selectedCategory) {
+        case 'Текстиль':
+          return p['type'] == 'clothes' || p['type'] == 'oversize';
+        case 'Термо винил':
+          return p['type'] == 'vinil';
+        case 'DTF материалы':
+          return p['type'] == 'dtf';
+        case 'Сублимационные кружки':
+          return p['type'] == 'cups';
+        case 'Оборудование':
+          return p['type'] == 'equipment';
+        default:
+          return true;
+      }
+    }).toList();
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 1,
-        title: const Text(
+        title: Text(
           'Каталог',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
+
       body: Column(
         children: [
-          // 🔘 Список категорий
+          // 🔘 Категории
           SizedBox(
-            height: 56,
+            height: 60,
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              children: categoryMap.keys.map((cat) {
-                final isSelected = cat == _selectedCategory;
+              children: categories.map((cat) {
+                final selected = cat == _selectedCategory;
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: ChoiceChip(
                     label: Text(cat),
-                    selected: isSelected,
+                    selected: selected,
                     onSelected: (_) => setState(() => _selectedCategory = cat),
-                    backgroundColor: Colors.white,
                     selectedColor: redColor,
+                    backgroundColor: Colors.white,
                     labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : Colors.black87,
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: selected ? Colors.white : Colors.black,
+                      fontWeight: selected ? FontWeight.bold : FontWeight.normal,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                       side: BorderSide(
-                        color: isSelected ? redColor : Colors.grey.shade300,
+                        color: selected ? redColor : Colors.grey.shade300,
                       ),
                     ),
                   ),
@@ -109,122 +101,96 @@ class _CatalogPageState extends State<CatalogPage> {
             ),
           ),
 
-          // 🛍️ Сетка товаров
+          // 📦 Товары
           Expanded(
-            child: items.isEmpty
-                ? const Center(
-                    child: Text(
-                      'Товары не найдены 😕',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                    ),
-                  )
-                : GridView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: items.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisExtent: 250,
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
-                    ),
-                    itemBuilder: (context, index) {
-                      final product = items[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              transitionDuration:
-                                  const Duration(milliseconds: 300),
-                              pageBuilder: (_, __, ___) =>
-                                  ProductPage(product: product),
-                              transitionsBuilder:
-                                  (_, animation, __, child) => FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              ),
-                            ),
-                          );
-                        },
-                        child: _productCard(product),
-                      );
-                    },
-                  ),
+            child: GridView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: filtered.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisExtent: 260,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+              ),
+              itemBuilder: (context, index) {
+                final product = filtered[index];
+                return _productCard(context, product);
+              },
+            ),
           ),
         ],
       ),
     );
   }
 
-  // 🔹 Виджет карточки товара
-  Widget _productCard(Map<String, dynamic> product) {
+  // 🔹 Карточка товара
+  Widget _productCard(BuildContext context, Map<String, dynamic> product) {
     const redColor = Color(0xFFE53935);
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.15),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 🖼️ Изображение
-          ClipRRect(
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(14)),
-            child: Image.asset(
-              product['images'][0],
-              height: 130,
-              width: double.infinity,
-              fit: BoxFit.cover,
+
+    return GestureDetector(
+      onTap: () =>
+          Navigator.push(context, MaterialPageRoute(builder: (_) => ProductPage(product: product))),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.15),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
             ),
-          ),
-          // 📝 Информация
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product['name'],
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w500, fontSize: 14),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${NumberFormat('#,###', 'ru').format(product['price'])} UZS',
-                  style: const TextStyle(
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(14)),
+              child: Image.asset(
+                product['images'][0],
+                height: 140,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(product['name'],
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w500, fontSize: 14)),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${NumberFormat('#,###', 'ru').format(product['price'])} UZS',
+                    style: const TextStyle(
+                        color: redColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    alignment: Alignment.center,
+                    height: 34,
+                    decoration: BoxDecoration(
                       color: redColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  alignment: Alignment.center,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    color: redColor,
-                    borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'Подробнее',
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
                   ),
-                  child: const Text(
-                    'Подробнее',
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

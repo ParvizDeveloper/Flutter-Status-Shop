@@ -3,17 +3,31 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'dart:async';
 
+import 'package:provider/provider.dart';
+
+import 'providers/language_provider.dart';
+
 import 'components/login.dart';
 import 'components/registration.dart';
 import 'pages/mainpage.dart';
 import 'components/profile_page.dart';
 import 'firebase_options.dart';
 import 'pages/product_page.dart';
+import 'base/translation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const StatusShopApp());
+
+  final langProvider = LanguageProvider();
+  await langProvider.loadLocale();
+
+  runApp(
+    ChangeNotifierProvider.value(
+      value: langProvider,
+      child: const StatusShopApp(),
+    ),
+  );
 }
 
 class StatusShopApp extends StatelessWidget {
@@ -31,9 +45,7 @@ class StatusShopApp extends StatelessWidget {
         '/registration': (_) => const RegistrationScreen(),
         '/mainpage': (_) => const MainPage(),
         '/profile': (_) => const ProfilePage(),
-        '/product': (_) => const ProductPage(
-        product: {}, 
-      ),
+        '/product': (_) => const ProductPage(product: {}),
       },
     );
   }
@@ -53,15 +65,16 @@ class _ConnectionCheckerState extends State<ConnectionChecker> {
   @override
   void initState() {
     super.initState();
-    _checkConnection();
-    _subscription = Connectivity().onConnectivityChanged.listen((result) {
-      setState(() => _hasInternet = result != ConnectivityResult.none);
+    _check();
+    _subscription =
+        Connectivity().onConnectivityChanged.listen((c) {
+      setState(() => _hasInternet = c != ConnectivityResult.none);
     });
   }
 
-  Future<void> _checkConnection() async {
-    final result = await Connectivity().checkConnectivity();
-    setState(() => _hasInternet = result != ConnectivityResult.none);
+  Future<void> _check() async {
+    final c = await Connectivity().checkConnectivity();
+    setState(() => _hasInternet = c != ConnectivityResult.none);
   }
 
   @override
@@ -72,10 +85,9 @@ class _ConnectionCheckerState extends State<ConnectionChecker> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_hasInternet) {
-      return const NoInternetScreen();
-    }
-    return const LoginScreen();
+    return _hasInternet
+        ? const LoginScreen()
+        : const NoInternetScreen();
   }
 }
 
@@ -89,15 +101,15 @@ class NoInternetScreen extends StatelessWidget {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.wifi_off, color: Colors.redAccent, size: 80),
-            SizedBox(height: 20),
+          children: [
+            const Icon(Icons.wifi_off, color: Colors.redAccent, size: 80),
+            const SizedBox(height: 20),
             Text(
-              'Нет подключения к интернету',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              tr(context, 'cart_empty'),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
-            SizedBox(height: 8),
-            Text('Проверьте соединение и перезапустите приложение.'),
+            const SizedBox(height: 8),
+            const Text('Проверьте соединение и перезапустите приложение.'),
           ],
         ),
       ),

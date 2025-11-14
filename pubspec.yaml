@@ -1,5 +1,5 @@
 name: status_shop
-description: "Android and Ios app for Status Shop."
+description: "Android and IOS app for Status Shop."
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -8,43 +8,51 @@ environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
-  image_picker: ^1.1.1
   flutter:
     sdk: flutter
+
   firebase_core: ^3.5.0
   firebase_auth: ^5.3.1
-  google_sign_in: ^6.2.1
   cloud_firestore: ^5.4.4
+  google_sign_in: ^6.2.1
+
+  connectivity_plus: ^7.0.0
   path_provider: ^2.1.4
   shared_preferences: ^2.3.0
-  intl: ^0.19.0
+  intl: ^0.20.2
+  image_picker: ^1.1.1
 
+  flutter_localizations:
+    sdk: flutter
 
-    
+  provider: ^6.0.5
+
   cupertino_icons: ^1.0.8
-  connectivity_plus: ^7.0.0
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_test:
     sdk: flutter
+  flutter_lints: ^5.0.0
 
 flutter_icons:
   android: true
   ios: true
-  image_path: 
-    "assets/images/icon.png"
-
-
-  flutter_lints: ^5.0.0
+  image_path: "assets/images/icon.png"
 
 flutter:
+  uses-material-design: true
+  generate: true
+
   assets:
     - assets/images/logo.png
     - assets/images/sale_banner.png
     - assets/images/product_sample.png
     - assets/images/
-    - assets/images/
     - assets/vinill/pu/
-    
-  uses-material-design: true
+    - assets/vinill/
+
+l10n:
+  arb-dir: lib/l10n
+  template-arb-file: app_en.arb
+  output-localization-file: app_localizations.dart

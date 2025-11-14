@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/language_provider.dart';
+import '../base/translation.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -66,9 +70,8 @@ class _ProfilePageState extends State<ProfilePage> {
       _saving = false;
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Данные успешно обновлены')),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(tr(context,'saved'))));
   }
 
   @override
@@ -81,21 +84,21 @@ class _ProfilePageState extends State<ProfilePage> {
         backgroundColor: Colors.white,
         elevation: 1,
         centerTitle: true,
-        title: const Text(
-          'Профиль',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        title: Text(
+          tr(context,'profile'),
+          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
       ),
+
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // 🧑‍💼 Верхняя секция
+          /// TOP
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16)),
             child: Row(
               children: [
                 const CircleAvatar(
@@ -103,18 +106,23 @@ class _ProfilePageState extends State<ProfilePage> {
                   backgroundImage: AssetImage('assets/images/profile_avatar.png'),
                 ),
                 const SizedBox(width: 16),
+
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(_nameController.text.isNotEmpty
-                          ? _nameController.text
-                          : 'Пользователь'),
+                      Text(
+                        _nameController.text.isNotEmpty
+                            ? _nameController.text
+                            : tr(context,'user'),
+                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                      ),
                       const SizedBox(height: 4),
                       Text(_email, style: const TextStyle(color: Colors.grey)),
                     ],
                   ),
                 ),
+
                 IconButton(
                   icon: const Icon(Icons.logout, color: Colors.grey),
                   onPressed: () async {
@@ -127,23 +135,24 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
           ),
+
           const SizedBox(height: 16),
 
-          // ⚙️ Раздел "Личные данные"
-          _sectionTitle('Личные данные'),
+          _sectionTitle(tr(context,'personal_data')),
+
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16)),
             child: Column(
               children: [
-                _editableField('Имя', _nameController),
-                _editableField('Компания', _companyController),
-                _editableField('Должность', _positionController),
-                _editableField('Город', _cityController),
-                _readonlyField('Телефон', _phone),
-                _readonlyField('E-mail', _email),
+                _editableField(tr(context,'name'), _nameController),
+                _editableField(tr(context,'company'), _companyController),
+                _editableField(tr(context,'position'), _positionController),
+                _editableField(tr(context,'city'), _cityController),
+
+                _readonlyField(tr(context,'phone'), _phone),
+                _readonlyField('Email', _email),
               ],
             ),
           ),
@@ -152,38 +161,41 @@ class _ProfilePageState extends State<ProfilePage> {
 
           if (_editing)
             _saving
-                ? const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(12),
-                      child: CircularProgressIndicator(color: redColor),
+                ? const Center(child: CircularProgressIndicator(color: redColor))
+                : ElevatedButton(
+                    onPressed: _saveChanges,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: redColor,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: ElevatedButton(
-                      onPressed: _saveChanges,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: redColor,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text('Сохранить изменения',
-                          style:
-                              TextStyle(color: Colors.white, fontSize: 16)),
+                    child: Text(
+                      tr(context,'save'),
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),
 
           const SizedBox(height: 24),
 
-          // 🔧 Остальные секции
-          _sectionTitle('Настройки'),
-          _settingItem(Icons.shopping_bag_outlined, 'Мои заказы'),
-          _settingItem(Icons.rate_review_outlined, 'Мои отзывы'),
-          _settingItem(Icons.lock_outline, 'Конфиденциальность'),
-          _settingItem(Icons.language_outlined, 'Язык интерфейса'),
-          _settingItem(Icons.help_outline, 'Помощь'),
+          _sectionTitle(tr(context,'settings')),
+
+          _settingItem(Icons.shopping_bag_outlined, tr(context,'my_orders')),
+          _settingItem(Icons.rate_review_outlined, tr(context,'my_reviews')),
+          _settingItem(Icons.lock_outline, tr(context,'privacy')),
+
+          /// LANGUAGE SELECTOR — MODAL
+          Card(
+            elevation: 0,
+            margin: const EdgeInsets.only(bottom: 8),
+            child: ListTile(
+              leading: const Icon(Icons.language_outlined, color: redColor),
+              title: Text(tr(context,'language')),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () => _showLanguageModal(),
+            ),
+          ),
+
+          _settingItem(Icons.help_outline, tr(context,'help')),
 
           const SizedBox(height: 60),
         ],
@@ -191,18 +203,32 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // 🔹 Заголовок секции
-  Widget _sectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Text(
-        title,
-        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-      ),
+  void _showLanguageModal() {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        print("CURRENT LANG = ${Provider.of<LanguageProvider>(context).localeCode}");
+        final lp = Provider.of<LanguageProvider>(context, listen: false);
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(title: const Text('Русский'), onTap: () { lp.setLocale('ru'); Navigator.pop(context); }),
+            ListTile(title: const Text("O'zbekcha"), onTap: () { lp.setLocale('uz'); Navigator.pop(context); }),
+            ListTile(title: const Text('English'), onTap: () { lp.setLocale('en'); Navigator.pop(context); }),
+            const SizedBox(height: 12),
+            
+          ],
+        );
+        
+      }
     );
   }
 
-  // 🔹 Редактируемое поле
+  Widget _sectionTitle(String title) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Text(title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+  );
+
   Widget _editableField(String label, TextEditingController controller) {
     const redColor = Color(0xFFE53935);
 
@@ -211,11 +237,9 @@ class _ProfilePageState extends State<ProfilePage> {
       subtitle: _editing
           ? TextField(
               controller: controller,
-              decoration: InputDecoration(
-                hintText: label,
-                focusedBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: redColor),
-                ),
+              decoration: const InputDecoration(
+                focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: redColor)),
               ),
             )
           : Text(controller.text.isNotEmpty ? controller.text : '—'),
@@ -228,32 +252,17 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // 🔹 Поле только для чтения
-  Widget _readonlyField(String label, String value) {
-    return ListTile(
-      title: Text(label),
-      subtitle: Text(value.isNotEmpty ? value : '—'),
-      enabled: false,
-    );
-  }
+  Widget _readonlyField(String label, String value) =>
+      ListTile(title: Text(label), subtitle: Text(value), enabled: false);
 
-  // 🔹 Пункт меню (как у Uzum)
-  Widget _settingItem(IconData icon, String title) {
-    return Card(
-      elevation: 0,
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: Icon(icon, color: Colors.redAccent),
-        title: Text(title,
-            style:
-                const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('$title — раздел в разработке')),
-          );
-        },
-      ),
-    );
-  }
+  Widget _settingItem(IconData icon, String title) => Card(
+    elevation: 0,
+    margin: const EdgeInsets.only(bottom: 8),
+    child: ListTile(
+      leading: Icon(icon, color: Colors.redAccent),
+      title: Text(title),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      onTap: () {},
+    ),
+  );
 }

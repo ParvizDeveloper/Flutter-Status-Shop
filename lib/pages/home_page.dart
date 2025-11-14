@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../pages/product_page.dart';
+import '../pages/catalog_page.dart';
 
-/// ✅ Единая база всех товаров
+/// ---------------------------------------------
+///  ВСЕ ТОВАРЫ
+/// ---------------------------------------------
 final List<Map<String, dynamic>> allProducts = [
   // 🧥 --- ТЕКСТИЛЬ ---
   {
     'name': 'Футболка Статус',
     'price': 95000,
     'images': ['assets/images/product_sample.png'],
-    'description': 'Футболка из плотного хлопка премиум-класса. Подходит для термопереноса.',
-    'characteristics': {'Материал': 'Хлопок 100%', 'Размеры': 'S, M, L, XL, XXL'},
+    'description': 'Футболка из плотного хлопка премиум-класса.',
+    'characteristics': {'Материал': 'Хлопок 100%', 'Размеры': 'S–XXL'},
     'type': 'clothes',
   },
   {
@@ -18,39 +21,39 @@ final List<Map<String, dynamic>> allProducts = [
     'price': 90000,
     'images': ['assets/images/product_sample.png'],
     'description': 'Лёгкая и удобная футболка классического кроя.',
-    'characteristics': {'Материал': 'Хлопок', 'Размеры': 'S, M, L, XL, XXL'},
+    'characteristics': {'Материал': 'Хлопок', 'Размеры': 'S–XXL'},
     'type': 'clothes',
   },
   {
     'name': 'Кепка',
     'price': 80000,
     'images': ['assets/images/product_sample.png'],
-    'description': 'Универсальная кепка с возможностью нанесения логотипа.',
-    'characteristics': {'Материал': 'Хлопок', 'Тип застёжки': 'Регулируемая'},
+    'description': 'Универсальная кепка с регулировкой.',
+    'characteristics': {'Материал': 'Хлопок'},
     'type': 'clothes',
   },
   {
     'name': 'Худи',
     'price': 175000,
     'images': ['assets/images/product_sample.png'],
-    'description': 'Мягкий худи с начёсом для повседневного ношения.',
-    'characteristics': {'Материал': 'Флис', 'Размеры': 'M, L, XL'},
+    'description': 'Мягкий худи с начёсом.',
+    'characteristics': {'Материал': 'Флис', 'Размеры': 'M–XL'},
     'type': 'oversize',
   },
   {
     'name': 'Свитшот',
     'price': 160000,
     'images': ['assets/images/product_sample.png'],
-    'description': 'Свитшот с плотной резинкой, идеально подходит для нанесения дизайнов.',
-    'characteristics': {'Материал': 'Футер', 'Размеры': 'S, M, L, XL, XXL'},
+    'description': 'Свитшот из футера.',
+    'characteristics': {'Материал': 'Футер', 'Размеры': 'S–XXL'},
     'type': 'clothes',
   },
   {
     'name': 'ЭКО сумка',
     'price': 55000,
     'images': ['assets/images/product_sample.png'],
-    'description': 'ЭКО сумка из нетканого материала с короткими ручками.',
-    'characteristics': {'Материал': 'Спанбонд', 'Размер': '40×35 см'},
+    'description': 'Эко-сумка 40×35 см.',
+    'characteristics': {'Материал': 'Спанбонд'},
     'type': 'clothes',
   },
 
@@ -59,168 +62,35 @@ final List<Map<String, dynamic>> allProducts = [
     'name': 'PU Flex',
     'price': 140000,
     'images': List.generate(41, (i) => 'assets/vinill/pu/pu_${i + 1}.png'),
-    'description': 'PU Flex — термотрансферная плёнка премиум-класса для текстиля.',
-    'characteristics': {'Ширина рулона': '50 см', 'Температура': '150°C', 'Время': '10 сек'},
+    'description': 'PU Flex — премиальный термовинил.',
+    'characteristics': {'Ширина': '50см', 'Температура': '150°C'},
     'type': 'vinil',
   },
-  {
-    'name': 'PVC Flex',
-    'price': 120000,
-    'images': ['assets/vinill/pvc.png'],
-    'description': 'PVC Flex — плотная термоплёнка для любых тканей.',
-    'characteristics': {'Ширина рулона': '50 см', 'Температура': '155°C'},
-    'type': 'vinil',
-  },
-  {
-    'name': 'Flock',
-    'price': 130000,
-    'images': ['assets/vinill/flock.png'],
-    'description': 'Мягкий бархатистый винил для дизайнов с текстурой.',
-    'characteristics': {'Ширина рулона': '50 см', 'Температура': '160°C'},
-    'type': 'vinil',
-  },
-  {
-    'name': 'Stretch Foil',
-    'price': 160000,
-    'images': ['assets/vinill/stretch.png'],
-    'description': 'Металлизированный винил с эффектом растяжения.',
-    'characteristics': {'Ширина рулона': '50 см', 'Температура': '145°C'},
-    'type': 'vinil',
-  },
-  {
-    'name': 'Metalic Flex',
-    'price': 150000,
-    'images': ['assets/vinill/metallic.png'],
-    'description': 'Глянцевый металлизированный винил для ярких надписей.',
-    'characteristics': {'Ширина рулона': '50 см', 'Температура': '150°C'},
-    'type': 'vinil',
-  },
-  {
-    'name': 'Фосфор Flex',
-    'price': 170000,
-    'images': ['assets/vinill/phosphor.png'],
-    'description': 'Винил, светящийся в темноте. Эффект “Glow in the Dark”.',
-    'characteristics': {'Ширина рулона': '50 см', 'Температура': '150°C'},
-    'type': 'vinil',
-  },
-  {
-    'name': 'Рефлектор Flex',
-    'price': 155000,
-    'images': ['assets/vinill/reflector.png'],
-    'description': 'Светоотражающий винил для спортивной и рабочей одежды.',
-    'characteristics': {'Ширина рулона': '50 см', 'Температура': '150°C'},
-    'type': 'vinil',
-  },
-  {
-    'name': 'Silicon Flex',
-    'price': 180000,
-    'images': ['assets/vinill/silicon.png'],
-    'description': 'Объёмная силиконовая термоплёнка. Эффект 3D.',
-    'characteristics': {'Ширина рулона': '50 см', 'Температура': '155°C'},
-    'type': 'vinil',
-  },
+  {'name': 'PVC Flex', 'price': 120000, 'images': ['assets/vinill/pvc.png'], 'description': 'Плотный винил.', 'characteristics': {'Ширина': '50см'}, 'type': 'vinil'},
+  {'name': 'Flock', 'price': 130000, 'images': ['assets/vinill/flock.png'], 'description': 'Бархатный эффект.', 'characteristics': {'Ширина': '50см'}, 'type': 'vinil'},
+  {'name': 'Stretch Foil', 'price': 160000, 'images': ['assets/vinill/stretch.png'], 'description': 'Металлик с растяжением.', 'characteristics': {'Ширина': '50см'}, 'type': 'vinil'},
+  {'name': 'Metalic Flex', 'price': 150000, 'images': ['assets/vinill/metallic.png'], 'description': 'Глянцевый металлик.', 'characteristics': {'Ширина': '50см'}, 'type': 'vinil'},
+  {'name': 'Фосфор Flex', 'price': 170000, 'images': ['assets/vinill/phosphor.png'], 'description': 'Светится в темноте.', 'characteristics': {'Ширина': '50см'}, 'type': 'vinil'},
+  {'name': 'Рефлектор Flex', 'price': 155000, 'images': ['assets/vinill/reflector.png'], 'description': 'Светоотражающий.', 'characteristics': {'Ширина': '50см'}, 'type': 'vinil'},
+  {'name': 'Silicon Flex', 'price': 180000, 'images': ['assets/vinill/silicon.png'], 'description': '3D силикон.', 'characteristics': {'Ширина': '50см'}, 'type': 'vinil'},
 
-  // ☕ --- КРУЖКИ, ТЕРМОСЫ ---
-  {
-    'name': 'Сублимационная кружка',
-    'price': 25000,
-    'images': ['assets/images/product_sample.png'],
-    'description': 'Белая кружка для сублимационной печати 330 мл.',
-    'characteristics': {'Материал': 'Керамика', 'Объём': '330 мл'},
-    'type': 'equipment',
-  },
-  {
-    'name': 'Термос для сублимации',
-    'price': 70000,
-    'images': ['assets/images/product_sample.png'],
-    'description': 'Металлический термос под сублимацию, 500 мл.',
-    'characteristics': {'Материал': 'Нержавеющая сталь', 'Объём': '500 мл'},
-    'type': 'equipment',
-  },
+  // ☕ КРУЖКИ
+  {'name': 'Сублимационная кружка', 'price': 25000, 'images': ['assets/images/product_sample.png'], 'description': 'Кружка 330 мл.', 'characteristics': {}, 'type': 'cups'},
+  {'name': 'Термос для сублимации', 'price': 70000, 'images': ['assets/images/product_sample.png'], 'description': 'Термос 500 мл.', 'characteristics': {}, 'type': 'cups'},
 
-  // ⚙️ --- ОБОРУДОВАНИЕ ---
-  {
-    'name': 'Плоттер Teneth 70см',
-    'price': 6800000,
-    'images': ['assets/images/product_sample.png'],
-    'description': 'Профессиональный режущий плоттер шириной 70 см.',
-    'characteristics': {'Точность': '0.1 мм', 'Ширина резки': '70 см'},
-    'type': 'equipment',
-  },
-  {
-    'name': 'Cameo 5',
-    'price': 5800000,
-    'images': ['assets/images/product_sample.png'],
-    'description': 'Плоттер Cameo 5 — компактный резчик для винила и текстиля.',
-    'characteristics': {'Ширина резки': '30 см', 'Точность': '0.1 мм'},
-    'type': 'equipment',
-  },
-  {
-    'name': 'Термопресс 38×38',
-    'price': 3500000,
-    'images': ['assets/images/product_sample.png'],
-    'description': 'Надёжный термопресс для переноса изображений.',
-    'characteristics': {'Температура': '180°C', 'Время нагрева': '15 сек'},
-    'type': 'equipment',
-  },
-  {
-    'name': 'Термопресс 60×40',
-    'price': 4200000,
-    'images': ['assets/images/product_sample.png'],
-    'description': 'Большой термопресс для промышленного использования.',
-    'characteristics': {'Температура': '180°C', 'Мощность': '2.2 кВт'},
-    'type': 'equipment',
-  },
-  {
-    'name': 'Термопресс для кепок',
-    'price': 2200000,
-    'images': ['assets/images/product_sample.png'],
-    'description': 'Термопресс для нанесения изображений на кепки.',
-    'characteristics': {'Температура': '150°C', 'Размер пластины': '15×8 см'},
-    'type': 'equipment',
-  },
-  {
-    'name': 'Термопресс для кружек',
-    'price': 1500000,
-    'images': ['assets/images/product_sample.png'],
-    'description': 'Специальный термопресс для кружек 330 мл.',
-    'characteristics': {'Температура': '170°C', 'Размер': '330 мл'},
-    'type': 'equipment',
-  },
-  {
-    'name': 'Мини-пресс',
-    'price': 1200000,
-    'images': ['assets/images/product_sample.png'],
-    'description': 'Компактный мини-пресс для мелких изделий.',
-    'characteristics': {'Температура': '150°C', 'Мощность': '800 Вт'},
-    'type': 'equipment',
-  },
+  // ⚙️ ОБОРУДОВАНИЕ
+  {'name': 'Плоттер Teneth 70см', 'price': 6800000, 'images': ['assets/images/product_sample.png'], 'description': 'Плоттер 70см.', 'characteristics': {}, 'type': 'equipment'},
+  {'name': 'Cameo 5', 'price': 5800000, 'images': ['assets/images/product_sample.png'], 'description': 'Компактный плоттер.', 'characteristics': {}, 'type': 'equipment'},
+  {'name': 'Термопресс 38×38', 'price': 3500000, 'images': ['assets/images/product_sample.png'], 'description': 'Надёжный пресс.', 'characteristics': {}, 'type': 'equipment'},
+  {'name': 'Термопресс 60×40', 'price': 4200000, 'images': ['assets/images/product_sample.png'], 'description': 'Большой пресс.', 'characteristics': {}, 'type': 'equipment'},
+  {'name': 'Термопресс для кепок', 'price': 2200000, 'images': ['assets/images/product_sample.png'], 'description': 'Пресс для кепок.', 'characteristics': {}, 'type': 'equipment'},
+  {'name': 'Термопресс для кружек', 'price': 1500000, 'images': ['assets/images/product_sample.png'], 'description': 'Пресс под кружки.', 'characteristics': {}, 'type': 'equipment'},
+  {'name': 'Мини-пресс', 'price': 1200000, 'images': ['assets/images/product_sample.png'], 'description': 'Компактный пресс.', 'characteristics': {}, 'type': 'equipment'},
 
-  // 🖨️ --- DTF материалы ---
-  {
-    'name': 'DTF краска',
-    'price': 250000,
-    'images': ['assets/images/product_sample.png'],
-    'description': 'Краска для DTF принтеров CMYK + White.',
-    'characteristics': {'Объём': '1 л', 'Тип': 'Пигментная'},
-    'type': 'dtf',
-  },
-  {
-    'name': 'DTF плёнка',
-    'price': 120000,
-    'images': ['assets/images/product_sample.png'],
-    'description': 'Матовая DTF плёнка для принтеров любого типа.',
-    'characteristics': {'Ширина': '60 см', 'Длина': '100 м'},
-    'type': 'dtf',
-  },
-  {
-    'name': 'DTF клей',
-    'price': 85000,
-    'images': ['assets/images/product_sample.png'],
-    'description': 'Порошковый клей для переноса DTF отпечатков.',
-    'characteristics': {'Тип': 'Термопорошок', 'Вес': '1 кг'},
-    'type': 'dtf',
-  },
+  // 🖨️ DTF
+  {'name': 'DTF краска', 'price': 250000, 'images': ['assets/images/product_sample.png'], 'description': 'Краска для DTF.', 'characteristics': {}, 'type': 'dtf'},
+  {'name': 'DTF плёнка', 'price': 120000, 'images': ['assets/images/product_sample.png'], 'description': 'DTF плёнка 60см.', 'characteristics': {}, 'type': 'dtf'},
+  {'name': 'DTF клей', 'price': 85000, 'images': ['assets/images/product_sample.png'], 'description': 'Клей порошковый.', 'characteristics': {}, 'type': 'dtf'},
 ];
 
 class HomePage extends StatelessWidget {
@@ -234,88 +104,206 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const redColor = Color(0xFFE53935);
-    final List<Map<String, dynamic>> featured = allProducts.take(6).toList();
+
+    final featured = allProducts.take(6).toList();
+    final recommended = allProducts.skip(6).take(6).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // 🔍 Верхняя панель
+            /// 🔍 Верхняя панель
             SliverAppBar(
               backgroundColor: Colors.white,
               floating: true,
               elevation: 1,
-              title: const Text('Status Shop',
-                  style: TextStyle(color: redColor, fontWeight: FontWeight.bold)),
-              centerTitle: true,
+              titleSpacing: 10,
+              title: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        children: const [
+                          Icon(Icons.search, color: Colors.grey),
+                          SizedBox(width: 6),
+                          Text("Поиск...", style: TextStyle(color: Colors.grey)),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(Icons.favorite_border, color: redColor),
+                  const SizedBox(width: 8),
+                  Icon(Icons.notifications_none, color: redColor),
+                ],
+              ),
             ),
 
-            // 🧱 Контент
+            /// Основной контент
             SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 🖼️ Логотип
+
+                  /// 🔷 Логотип — теперь по центру
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20, bottom: 10),
+                    child: Center(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          height: 90,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  /// 🔵 Категории
+                  _sectionTitle("Категории"),
+                  SizedBox(
+                    height: 110,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.only(left: 16),
+                      children: [
+                        _category(context, Icons.checkroom, "Текстиль", "Текстиль"),
+                        _category(context, Icons.layers, "Термо винил", "Термо винил"),
+                        _category(context, Icons.print, "DTF материалы", "DTF материалы"),
+                        _category(context, Icons.coffee, "Кружки", "Сублимационные кружки"),
+                        _category(context, Icons.precision_manufacturing, "Оборудование", "Оборудование"),
+                      ],
+                    ),
+                  ),
+
+                  /// 🟥 SALE BANNNER — уменьшенный, как ранее
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
-                      child: Image.asset('assets/images/logo.png', height: 100),
+                      child: Image.asset(
+                        'assets/images/sale_banner.png',
+                        height: 150,             // 🔥 уменьшенный
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
 
-                  // 🔥 Популярные товары
-                  _sectionTitle('Популярное'),
+                  /// ⭐ Популярное
+                  _sectionTitle("Популярное"),
                   SizedBox(
-                    height: 270,
+                    height: 260,
                     child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       itemCount: featured.length,
-                      itemBuilder: (context, index) {
-                        final product = featured[index];
-                        return _productCard(context, product);
-                      },
+                      itemBuilder: (c, i) => _productCard(c, featured[i]),
                     ),
                   ),
 
-                  const SizedBox(height: 20),
-                  _sectionTitle('Рекомендуем'),
+                  /// 💡 Рекомендуем
+                  _sectionTitle("Рекомендуем"),
                   SizedBox(
-                    height: 270,
+                    height: 260,
                     child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       scrollDirection: Axis.horizontal,
-                      itemCount: 6,
-                      itemBuilder: (context, index) {
-                        final product = allProducts[index + 6];
-                        return _productCard(context, product);
-                      },
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: recommended.length,
+                      itemBuilder: (c, i) => _productCard(c, recommended[i]),
                     ),
                   ),
+
+                  const SizedBox(height: 32),
+
+                  /// 🧾 О НАС — минимализм
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: const [
+                          SizedBox(height: 10),
+                          Text(
+                            "Status Shop\n"
+                            "г. Ташкент, Чиланзар 1-й квартал, 59\n"
+                            "+998 90 176 01 04\n"
+                            "Пн-Сб: 10:00–19:00",
+                            style: TextStyle(fontSize: 14, height: 1.5),
+                            textAlign: TextAlign.center,   // ✔ центрирование
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+
+                  const SizedBox(height: 40),
                 ],
               ),
-            ),
+            )
           ],
         ),
       ),
     );
   }
 
-  static Widget _sectionTitle(String title) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child:
-            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+  /// Заголовок секции
+  Widget _sectionTitle(String t) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        child: Text(
+          t,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
       );
 
-  Widget _productCard(BuildContext context, Map<String, dynamic> product) {
-    const redColor = Color(0xFFE53935);
+  /// КАТЕГОРИЯ (кнопка Uzum-стиля)
+  Widget _category(BuildContext ctx, IconData icon, String label, String category) {
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => ProductPage(product: product)),
+      onTap: () {
+        Navigator.push(
+          ctx,
+          MaterialPageRoute(
+            builder: (_) => CatalogPage(preselectedCategory: category),
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(right: 14),
+        child: Column(
+          children: [
+            Container(
+              height: 62,
+              width: 62,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(50),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: Icon(icon, color: Color(0xFFE53935), size: 30),
+            ),
+            const SizedBox(height: 6),
+            Text(label, style: const TextStyle(fontSize: 13)),
+          ],
+        ),
       ),
+    );
+  }
+
+  /// Карточка товара
+  Widget _productCard(BuildContext ctx, Map<String, dynamic> product) {
+    const redColor = Color(0xFFE53935);
+
+    return GestureDetector(
+      onTap: () =>
+          Navigator.push(ctx, MaterialPageRoute(builder: (_) => ProductPage(product: product))),
       child: Container(
         width: 160,
         margin: const EdgeInsets.only(right: 12),
@@ -327,15 +315,14 @@ class HomePage extends StatelessWidget {
               color: Colors.grey.withOpacity(0.15),
               blurRadius: 6,
               offset: const Offset(0, 3),
-            ),
+            )
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(14)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
               child: Image.asset(
                 product['images'][0],
                 height: 140,
@@ -343,34 +330,29 @@ class HomePage extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
+
             Padding(
               padding: const EdgeInsets.all(8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(product['name'],
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w500, fontSize: 14)),
+                  Text(
+                    product['name'],
+                    maxLines: 2,
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
                   const SizedBox(height: 4),
-                  Text(formatPrice(product['price']),
-                      style: const TextStyle(
-                          color: redColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15)),
-                  const SizedBox(height: 6),
-                  Container(
-                    alignment: Alignment.center,
-                    height: 34,
-                    decoration: BoxDecoration(
+                  Text(
+                    "${NumberFormat('#,###', 'ru').format(product['price'])} UZS",
+                    style: const TextStyle(
                       color: redColor,
-                      borderRadius: BorderRadius.circular(8),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
-                    child: const Text('Подробнее',
-                        style: TextStyle(color: Colors.white, fontSize: 14)),
                   ),
                 ],
               ),
-            ),
+            )
           ],
         ),
       ),
