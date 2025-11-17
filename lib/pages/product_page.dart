@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/language_provider.dart';
 
 class ProductPage extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -18,6 +20,22 @@ class _ProductPageState extends State<ProductPage> {
   String? _selectedSize;
   int _selectedColorIndex = 0;
   final _controller = TextEditingController(text: '1');
+
+  // ---------------------------------------------------------
+  //  Local getters
+  // ---------------------------------------------------------
+  String get lang =>
+      Provider.of<LanguageProvider>(context, listen: false).localeCode;
+
+  String pName() => widget.product['name'][lang] ?? widget.product['name']['ru'];
+  String pDesc() =>
+      widget.product['description'][lang] ?? widget.product['description']['ru'];
+
+  String tr(String ru, String uz, String en) {
+    if (lang == 'ru') return ru;
+    if (lang == 'uz') return uz;
+    return en;
+  }
 
   // ---------- FORMAT PRICE ----------
   String formatPrice(num value) {
@@ -53,7 +71,7 @@ class _ProductPageState extends State<ProductPage> {
         backgroundColor: Colors.white,
         elevation: 1,
         title: Text(
-          product['name'],
+          pName(),
           style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -82,9 +100,9 @@ class _ProductPageState extends State<ProductPage> {
 
             // ---------- COLORS ----------
             if (images.length > 1) ...[
-              const Text(
-                'Выберите цвет:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Text(
+                tr("Выберите цвет:", "Rangni tanlang:", "Choose color:"),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
 
@@ -126,16 +144,17 @@ class _ProductPageState extends State<ProductPage> {
             // ---------- METERS / QUANTITY / SIZE ----------
             if (type == 'vinil') _buildMetersInput(),
             if (type == 'clothes' || type == 'oversize') _buildClothesInput(type),
-            if (type == 'equipment' || type == 'dtf' || type == 'cups') _buildQuantityInput(),
+            if (type == 'equipment' || type == 'dtf' || type == 'cups')
+              _buildQuantityInput(),
 
             const SizedBox(height: 20),
 
             // ---------- CHARACTERISTICS ----------
-            _buildInfoBlock('Характеристики', product['characteristics']),
+            _buildCharacteristicsBlock(product['characteristics']),
             const SizedBox(height: 16),
 
             // ---------- DESCRIPTION ----------
-            _buildDescription(product['description']),
+            _buildDescription(pDesc()),
             const SizedBox(height: 20),
 
             // ---------- TOTAL ----------
@@ -151,7 +170,100 @@ class _ProductPageState extends State<ProductPage> {
     );
   }
 
-  // ---------- METERS INPUT ----------
+  // ---------------------------------------------------------------------------
+  //        CHARACTERISTICS WITH TRANSLATION
+  // ---------------------------------------------------------------------------
+  Widget _buildCharacteristicsBlock(Map? data) {
+    if (data == null || data.isEmpty) return const SizedBox();
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white, borderRadius: BorderRadius.circular(12),
+      ),
+
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            tr("Характеристики", "Xususiyatlar", "Specifications"),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          const SizedBox(height: 10),
+
+          ...data.entries.map((e) {
+            final key = e.key;
+            final v = e.value;
+
+            // Правильное извлечение значения
+            String value;
+            if (v is Map) {
+              value = v[lang] ?? v['ru'] ?? v.values.first;
+            } else {
+              value = v.toString();
+            }
+
+            return Text(
+              "• ${_translateCharacteristicKey(key)}: $value",
+              style: const TextStyle(fontSize: 14),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  // Подписи характеристик (ключей)
+  String _translateCharacteristicKey(String key) {
+    const map = {
+      'material': {'ru':'Материал','uz':'Material','en':'Material'},
+      'weight': {'ru':'Плотность / Вес','uz':'Zichlik / Og‘irlik','en':'Density / Weight'},
+      'sizes': {'ru':'Размеры','uz':'O‘lchamlar','en':'Sizes'},
+      'suitable': {'ru':'Подходит для','uz':'Mos keladi','en':'Suitable for'},
+      'adjustment': {'ru':'Регулировка','uz':'Sozlash','en':'Adjustment'},
+      'uses': {'ru':'Использование','uz':'Qo‘llanilishi','en':'Usage'},
+      'width': {'ru':'Ширина','uz':'Eni','en':'Width'},
+      'temp': {'ru':'Температура','uz':'Harorat','en':'Temperature'},
+      'time': {'ru':'Время','uz':'Vaqt','en':'Time'},
+      'plate': {'ru':'Размер пластины','uz':'Plita o‘lchami','en':'Plate size'},
+      'power': {'ru':'Мощность','uz':'Quvvat','en':'Power'},
+      'volume': {'ru':'Объём','uz':'Hajm','en':'Volume'},
+      'cut_width': {'ru':'Ширина резки','uz':'Kesish eni','en':'Cut width'},
+      'precision': {'ru':'Точность','uz':'Aniqlik','en':'Precision'},
+      'type': {'ru':'Тип','uz':'Turi','en':'Type'},
+    };
+
+    return map[key]?[lang] ?? key;
+  }
+
+  // ---------------------------------------------------------------------------
+  // DESCRIPTION
+  // ---------------------------------------------------------------------------
+  Widget _buildDescription(String desc) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white, borderRadius: BorderRadius.circular(12),
+      ),
+
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            tr("Описание", "Tavsif", "Description"),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          const SizedBox(height: 8),
+
+          Text(desc, style: const TextStyle(fontSize: 14, height: 1.5)),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // METERS
+  // ---------------------------------------------------------------------------
   Widget _buildMetersInput() {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -163,8 +275,10 @@ class _ProductPageState extends State<ProductPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Метры:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+          Text(
+            tr("Метры:", "Metrlar:", "Meters:"),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          ),
           const SizedBox(height: 8),
 
           TextField(
@@ -174,22 +288,24 @@ class _ProductPageState extends State<ProductPage> {
               setState(() => _meters = double.tryParse(val.replaceAll(",", ".")) ?? 1);
             },
             decoration: InputDecoration(
-              hintText: 'Введите количество метров',
+              hintText: tr("Введите количество метров", "Metr miqdorini kiriting", "Enter meters"),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             ),
           ),
 
           const SizedBox(height: 8),
-          const Text(
-            'Цена за 1 метр: 140 000 UZS',
-            style: TextStyle(color: Colors.grey, fontSize: 13),
+          Text(
+            tr("Цена за 1 метр", "1 metr narxi", "Price per 1 meter") + ": 140 000 UZS",
+            style: const TextStyle(color: Colors.grey, fontSize: 13),
           ),
         ],
       ),
     );
   }
 
-  // ---------- SIZE + QUANTITY FOR CLOTHES ----------
+  // ---------------------------------------------------------------------------
+  // CLOTHES
+  // ---------------------------------------------------------------------------
   Widget _buildClothesInput(String type) {
     final sizes = type == 'oversize'
         ? ['M', 'L', 'XL']
@@ -205,8 +321,10 @@ class _ProductPageState extends State<ProductPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Выберите размер:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+          Text(
+            tr("Выберите размер:", "O‘lchamni tanlang:", "Choose size:"),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          ),
           const SizedBox(height: 10),
 
           Wrap(
@@ -218,8 +336,7 @@ class _ProductPageState extends State<ProductPage> {
                 selected: selected,
                 onSelected: (_) => setState(() => _selectedSize = s),
                 selectedColor: Colors.redAccent,
-                labelStyle:
-                    TextStyle(color: selected ? Colors.white : Colors.black),
+                labelStyle: TextStyle(color: selected ? Colors.white : Colors.black),
               );
             }).toList(),
           ),
@@ -231,13 +348,17 @@ class _ProductPageState extends State<ProductPage> {
     );
   }
 
-  // ---------- QUANTITY ----------
+  // ---------------------------------------------------------------------------
+  // QUANTITY
+  // ---------------------------------------------------------------------------
   Widget _buildQuantityInput() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('Количество:',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+        Text(
+          tr("Количество:", "Soni:", "Quantity:"),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
 
         Row(
           children: [
@@ -258,54 +379,9 @@ class _ProductPageState extends State<ProductPage> {
     );
   }
 
-  // ---------- CHARACTERISTICS ----------
-  Widget _buildInfoBlock(String title, Map? data) {
-    if (data == null) return const SizedBox();
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white, borderRadius: BorderRadius.circular(12),
-      ),
-
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-          const SizedBox(height: 10),
-
-          ...data.entries.map((e) => Text('• ${e.key}: ${e.value}',
-              style: const TextStyle(fontSize: 14))),
-        ],
-      ),
-    );
-  }
-
-  // ---------- DESCRIPTION ----------
-  Widget _buildDescription(String? desc) {
-    if (desc == null) return const SizedBox();
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white, borderRadius: BorderRadius.circular(12),
-      ),
-
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Описание',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-          const SizedBox(height: 8),
-
-          Text(desc, style: const TextStyle(fontSize: 14, height: 1.5)),
-        ],
-      ),
-    );
-  }
-
-  // ---------- TOTAL ----------
+  // ---------------------------------------------------------------------------
+  // TOTAL
+  // ---------------------------------------------------------------------------
   Widget _buildTotal(Color redColor) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -316,8 +392,10 @@ class _ProductPageState extends State<ProductPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('Итого:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          Text(
+            tr("Итого:", "Jami:", "Total:"),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
 
           Text(
             formatPrice(totalPrice),
@@ -329,7 +407,9 @@ class _ProductPageState extends State<ProductPage> {
     );
   }
 
-  // ---------- ADD TO CART ----------
+  // ---------------------------------------------------------------------------
+  // ADD TO CART
+  // ---------------------------------------------------------------------------
   Widget _buildAddToCartButton(Color redColor, Map<String, dynamic> product) {
     return SizedBox(
       width: double.infinity,
@@ -337,9 +417,9 @@ class _ProductPageState extends State<ProductPage> {
       child: ElevatedButton.icon(
         icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white),
 
-        label: const Text(
-          'Добавить в корзину',
-          style: TextStyle(fontSize: 16, color: Colors.white),
+        label: Text(
+          tr("Добавить в корзину", "Savatchaga qo‘shish", "Add to cart"),
+          style: const TextStyle(fontSize: 16, color: Colors.white),
         ),
 
         style: ElevatedButton.styleFrom(
@@ -351,7 +431,7 @@ class _ProductPageState extends State<ProductPage> {
         onPressed: () async {
           if (product['type'] == 'clothes' && _selectedSize == null) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Выберите размер')),
+              SnackBar(content: Text(tr("Выберите размер", "O‘lcham tanlang", "Select size"))),
             );
             return;
           }
@@ -360,7 +440,7 @@ class _ProductPageState extends State<ProductPage> {
 
           if (user == null) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Войдите в аккаунт')),
+              SnackBar(content: Text(tr("Войдите в аккаунт", "Akkauntga kiring", "Sign in first"))),
             );
             return;
           }
@@ -368,7 +448,7 @@ class _ProductPageState extends State<ProductPage> {
           final itemId = '${product['type']}_${DateTime.now().millisecondsSinceEpoch}';
 
           final item = {
-            'name': product['name'],
+            'name': pName(), // localized name saved to cart
             'type': product['type'],
             'image': product['images'][_selectedColorIndex],
             'price': product['price'],
@@ -388,7 +468,7 @@ class _ProductPageState extends State<ProductPage> {
               .set(item);
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('🛒 Товар добавлен в корзину')),
+            SnackBar(content: Text(tr("🛒 Товар добавлен в корзину", "🛒 Tovar savatchaga qo‘shildi", "🛒 Added to cart"))),
           );
         },
       ),

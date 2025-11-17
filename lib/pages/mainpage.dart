@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'home_page.dart';
 import 'catalog_page.dart';
 import 'cart_page.dart';
 import '../components/profile_page.dart';
+import '../providers/language_provider.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -14,7 +17,6 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
 
-  // Страницы создаются один раз и хранятся в памяти (IndexedStack)
   final List<Widget> _pages = const [
     HomePage(),
     CatalogPage(),
@@ -28,19 +30,32 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
+  /// Функция перевода
+  String tr(BuildContext ctx, String ru, String uz, String en) {
+    final lang = Provider.of<LanguageProvider>(ctx).localeCode;
+    if (lang == 'ru') return ru;
+    if (lang == 'uz') return uz;
+    return en;
+  }
+
   @override
   Widget build(BuildContext context) {
     const redColor = Color(0xFFE53935);
 
+    // Локализованные подписи вкладок
+    final tHome = tr(context, 'Главная', 'Bosh sahifa', 'Home');
+    final tCatalog = tr(context, 'Каталог', 'Katalog', 'Catalog');
+    final tCart = tr(context, 'Корзина', 'Savatcha', 'Cart');
+    final tProfile = tr(context, 'Профиль', 'Profil', 'Profile');
+
     return Scaffold(
       backgroundColor: Colors.white,
-      // Используем IndexedStack, чтобы не пересоздавать страницы при переключении
+
       body: IndexedStack(
         index: _selectedIndex,
         children: _pages,
       ),
 
-      // Нижняя панель — постоянная, как в Uzum Market
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           border: Border(top: BorderSide(color: Colors.black12, width: 0.5)),
@@ -54,26 +69,27 @@ class _MainPageState extends State<MainPage> {
           showUnselectedLabels: true,
           elevation: 5,
           onTap: _onItemTapped,
-          items: const [
+
+          items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Главная',
+              icon: const Icon(Icons.home_outlined),
+              activeIcon: const Icon(Icons.home),
+              label: tHome,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.category_outlined),
-              activeIcon: Icon(Icons.category),
-              label: 'Каталог',
+              icon: const Icon(Icons.category_outlined),
+              activeIcon: const Icon(Icons.category),
+              label: tCatalog,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart_outlined),
-              activeIcon: Icon(Icons.shopping_cart),
-              label: 'Корзина',
+              icon: const Icon(Icons.shopping_cart_outlined),
+              activeIcon: const Icon(Icons.shopping_cart),
+              label: tCart,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Профиль',
+              icon: const Icon(Icons.person_outline),
+              activeIcon: const Icon(Icons.person),
+              label: tProfile,
             ),
           ],
         ),

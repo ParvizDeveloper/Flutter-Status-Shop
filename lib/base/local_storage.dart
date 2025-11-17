@@ -6,7 +6,7 @@ class LocalStorage {
   static const _fileName = 'users.txt';
   static const _loggedKey = 'is_logged_in';
 
-  /// 📁 Получаем путь к локальной папке
+  /// 📁 Путь к локальной папке
   static Future<String> _getFilePath() async {
     final dir = await getApplicationDocumentsDirectory();
     return '${dir.path}/$_fileName';
@@ -56,6 +56,21 @@ email=$email
     }
 
     return data;
+  }
+
+  /// 🔥 Новый метод: получить данные пользователя для заполнения форм
+  static Future<Map<String, String>> getUserData() async {
+    final data = await readUserFromTxt();
+
+    return {
+      'name': data['name'] ?? '',
+      'surname': data['surname'] ?? '',
+      'company': data['company'] ?? '',
+      'position': data['position'] ?? '',
+      'city': data['city'] ?? 'Ташкент',     // значение по умолчанию
+      'phone': data['phone'] ?? '',
+      'email': data['email'] ?? '',
+    };
   }
 
   /// 🔐 Сохраняем статус авторизации

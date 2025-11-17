@@ -93,7 +93,7 @@ class _ConnectionCheckerState extends State<ConnectionChecker> {
 
 class NoInternetScreen extends StatelessWidget {
   const NoInternetScreen({super.key});
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(

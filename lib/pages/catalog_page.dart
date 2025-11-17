@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import '../pages/product_page.dart';
-import '../pages/home_page.dart'; // чтобы получить allProducts
+import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
+import '../providers/language_provider.dart';
+import '../pages/product_page.dart';
+import '../pages/home_page.dart'; // allProducts
 
 class CatalogPage extends StatefulWidget {
-  final String? preselectedCategory;   // ← ДОБАВЛЕН ПАРАМЕТР
+  final String? preselectedCategory;
 
   const CatalogPage({super.key, this.preselectedCategory});
 
@@ -16,7 +18,7 @@ class CatalogPage extends StatefulWidget {
 class _CatalogPageState extends State<CatalogPage> {
   late String _selectedCategory;
 
-  final List<String> categories = [
+  final List<String> categoriesRu = [
     'Текстиль',
     'Термо винил',
     'DTF материалы',
@@ -27,16 +29,44 @@ class _CatalogPageState extends State<CatalogPage> {
   @override
   void initState() {
     super.initState();
-
-    // Если категория пришла из HomePage → используем её
     _selectedCategory = widget.preselectedCategory ?? 'Текстиль';
+  }
+
+  /// ЛОКАЛИЗАЦИЯ ТЕКСТА
+  String tr(BuildContext context, String ru, String uz, String en) {
+    final lang = context.watch<LanguageProvider>().localeCode;
+    if (lang == 'ru') return ru;
+    if (lang == 'uz') return uz;
+    return en;
+  }
+
+  /// Перевод Категорий
+  String trCategory(BuildContext context, String ru) {
+    return {
+      "Текстиль":          tr(context, "Текстиль", "Tekstil", "Textile"),
+      "Термо винил":       tr(context, "Термо винил", "Termo vinil", "Heat vinyl"),
+      "DTF материалы":     tr(context, "DTF материалы", "DTF materiallari", "DTF materials"),
+      "Сублимационные кружки":
+                           tr(context, "Сублимационные кружки", "Sublimatsiya krujkalar", "Sublimation mugs"),
+      "Оборудование":      tr(context, "Оборудование", "Uskunalar", "Equipment"),
+    }[ru] ?? ru;
+  }
+
+  /// Перевод имени товара
+  String trName(BuildContext context, Map product) {
+    final lang = context.watch<LanguageProvider>().localeCode;
+    final obj = product['name'];
+    if (obj is Map) return obj[lang] ?? obj['ru'];
+    return obj.toString();
   }
 
   @override
   Widget build(BuildContext context) {
     const redColor = Color(0xFFE53935);
 
-    // Фильтр товаров в зависимости от категории
+    final appBarTitle = tr(context, 'Каталог', 'Katalog', 'Catalog');
+
+    /// Фильтрация ТОВАРОВ по типу (логика прежняя)
     List<Map<String, dynamic>> filtered = allProducts.where((p) {
       switch (_selectedCategory) {
         case 'Текстиль':
@@ -49,40 +79,42 @@ class _CatalogPageState extends State<CatalogPage> {
           return p['type'] == 'cups';
         case 'Оборудование':
           return p['type'] == 'equipment';
-        default:
-          return true;
       }
+      return true;
     }).toList();
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
+
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 1,
+        centerTitle: true,
         title: Text(
-          'Каталог',
+          appBarTitle,
           style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
         ),
-        centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
 
       body: Column(
         children: [
-          // 🔘 Категории
+
+          /// 🔥 КАТЕГОРИИ
           SizedBox(
             height: 60,
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              children: categories.map((cat) {
-                final selected = cat == _selectedCategory;
+              children: categoriesRu.map((catRu) {
+                final selected = catRu == _selectedCategory;
+
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: ChoiceChip(
-                    label: Text(cat),
+                    label: Text(trCategory(context, catRu)),
                     selected: selected,
-                    onSelected: (_) => setState(() => _selectedCategory = cat),
+                    onSelected: (_) => setState(() => _selectedCategory = catRu),
                     selectedColor: redColor,
                     backgroundColor: Colors.white,
                     labelStyle: TextStyle(
@@ -101,7 +133,7 @@ class _CatalogPageState extends State<CatalogPage> {
             ),
           ),
 
-          // 📦 Товары
+          /// 🔥 СЕТКА ТОВАРОВ
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(16),
@@ -123,13 +155,18 @@ class _CatalogPageState extends State<CatalogPage> {
     );
   }
 
-  // 🔹 Карточка товара
+  // -----------------------------------------------
+  // КАРТОЧКА ТОВАРА
+  // -----------------------------------------------
   Widget _productCard(BuildContext context, Map<String, dynamic> product) {
     const redColor = Color(0xFFE53935);
 
     return GestureDetector(
-      onTap: () =>
-          Navigator.push(context, MaterialPageRoute(builder: (_) => ProductPage(product: product))),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => ProductPage(product: product)),
+      ),
+
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -142,12 +179,14 @@ class _CatalogPageState extends State<CatalogPage> {
             ),
           ],
         ),
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
+            /// Фото
             ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(14)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
               child: Image.asset(
                 product['images'][0],
                 height: 140,
@@ -155,25 +194,36 @@ class _CatalogPageState extends State<CatalogPage> {
                 fit: BoxFit.cover,
               ),
             ),
+
             Padding(
               padding: const EdgeInsets.all(8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(product['name'],
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w500, fontSize: 14)),
+
+                  /// Название
+                  Text(
+                    trName(context, product),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+                  ),
+
                   const SizedBox(height: 4),
+
+                  /// Цена
                   Text(
                     '${NumberFormat('#,###', 'ru').format(product['price'])} UZS',
                     style: const TextStyle(
-                        color: redColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15),
+                      color: redColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
                   ),
+
                   const SizedBox(height: 8),
+
+                  /// Кнопка
                   Container(
                     alignment: Alignment.center,
                     height: 34,
@@ -181,9 +231,9 @@ class _CatalogPageState extends State<CatalogPage> {
                       color: redColor,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Text(
-                      'Подробнее',
-                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    child: Text(
+                      tr(context, 'Подробнее', 'Batafsil', 'More'),
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
                     ),
                   ),
                 ],
