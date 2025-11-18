@@ -26,21 +26,54 @@ class _OrderPageState extends State<OrderPage> {
   String? _selectedBranch;
   String _paymentMethod = "cash";
 
-  /// Филиалы (RU смысл — но сами города переводятся в UI)
-  final branches = {
-    "Ташкент": "Чиланзар, 1-й квартал 59",
-    "Самарканд": "ул. Ибн Сино, 24",
-    "Бухара": "ул. Б.Накшбандиддин, 12",
+  /// Полностью типизированный Map
+  final Map<String, Map<String, Map<String, String>>> branches = {
+    "tashkent": {
+      "name": {"ru": "Ташкент", "uz": "Toshkent", "en": "Tashkent"},
+      "address": {
+        "ru": "Чиланзар, 1-й квартал 59",
+        "uz": "Chilonzor, 1-kvartal 59",
+        "en": "Chilanzar, Block 1, 59",
+      }
+    },
+    "samarkand": {
+      "name": {"ru": "Самарканд", "uz": "Samarqand", "en": "Samarkand"},
+      "address": {
+        "ru": "ул. Ибн Сино, 24",
+        "uz": "Ibn Sino ko‘chasi, 24",
+        "en": "Ibn Sino street, 24",
+      }
+    },
+    "bukhara": {
+      "name": {"ru": "Бухара", "uz": "Buxoro", "en": "Bukhara"},
+      "address": {
+        "ru": "ул. Б.Накшбандиддин, 12",
+        "uz": "B. Naqshbandi ko‘chasi, 12",
+        "en": "B. Naqshbandi street, 12",
+      }
+    },
   };
 
   bool loading = true;
 
-  /// --- Удобная функция перевода ---
+  /// Универсальный перевод
   String tr(String ru, String uz, String en) {
     final lang = Provider.of<LanguageProvider>(context).localeCode;
     if (lang == "ru") return ru;
     if (lang == "uz") return uz;
     return en;
+  }
+
+  /// Перевод города
+  String trCity(String key) {
+    final lang = Provider.of<LanguageProvider>(context).localeCode;
+    return branches[key]!["name"]![lang] ?? branches[key]!["name"]!["ru"]!;
+  }
+
+  /// Перевод адреса
+  String trAddress(String key) {
+    final lang = Provider.of<LanguageProvider>(context).localeCode;
+    return branches[key]!["address"]![lang] ?? branches[key]!["address"]!["ru"]!;
   }
 
   @override
@@ -55,27 +88,20 @@ class _OrderPageState extends State<OrderPage> {
     _nameController.text = "${user['name'] ?? ''} ${user['surname'] ?? ''}";
     _phoneController.text = user['phone'] ?? '';
 
-    final city = user['city'] ?? "Ташкент";
+    /// Город из профиля RU → делаем ключ
+    final cityRu = user['city'] ?? "Ташкент";
 
-    _selectedBranch = branches.containsKey(city) ? city : "Ташкент";
+    if (cityRu == "Ташкент") _selectedBranch = "tashkent";
+    else if (cityRu == "Самарканд") _selectedBranch = "samarkand";
+    else if (cityRu == "Бухара") _selectedBranch = "bukhara";
+    else _selectedBranch = "tashkent";
 
     setState(() => loading = false);
   }
 
   Future<void> submitOrder() async {
-    if (_nameController.text.trim().isEmpty ||
-        _phoneController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr(
-          "Пожалуйста, заполните все поля",
-          "Barcha maydonlarni to‘ldiring",
-          "Please fill in all fields",
-        ))),
-      );
-      return;
-    }
-
     final uid = FirebaseAuth.instance.currentUser?.uid;
+
     if (uid == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(tr(
@@ -88,13 +114,14 @@ class _OrderPageState extends State<OrderPage> {
     }
 
     final orderId = "${uid}_${DateTime.now().millisecondsSinceEpoch}";
+
     final order = {
       "orderId": orderId,
       "uid": uid,
       "name": _nameController.text.trim(),
       "phone": _phoneController.text.trim(),
-      "branch": _selectedBranch,
-      "address": branches[_selectedBranch],
+      "branch": trCity(_selectedBranch!),
+      "address": trAddress(_selectedBranch!),
       "payment_method": _paymentMethod,
       "total": widget.totalAmount,
       "items": widget.cartItems,
@@ -112,7 +139,7 @@ class _OrderPageState extends State<OrderPage> {
         .doc(orderId)
         .set(order);
 
-    // очистка корзины
+    // очищаем корзину
     for (var item in widget.cartItems) {
       await db
           .collection("users")
@@ -138,7 +165,9 @@ class _OrderPageState extends State<OrderPage> {
     const redColor = Color(0xFFE53935);
 
     if (loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
     return Scaffold(
@@ -147,7 +176,7 @@ class _OrderPageState extends State<OrderPage> {
         elevation: 1,
         centerTitle: true,
         title: Text(
-          tr("Оформление заказа", "Buyurtmani rasmiylashtirish", "Checkout"),
+          tr("Оформление заказа", "Buyurtma berish", "Checkout"),
           style: const TextStyle(color: Colors.black),
         ),
         iconTheme: const IconThemeData(color: Colors.black),
@@ -157,7 +186,6 @@ class _OrderPageState extends State<OrderPage> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-
             TextField(
               controller: _nameController,
               decoration: InputDecoration(
@@ -178,20 +206,24 @@ class _OrderPageState extends State<OrderPage> {
             DropdownButtonFormField<String>(
               value: _selectedBranch,
               items: branches.keys
-                  .map((city) => DropdownMenuItem(
-                      value: city, child: Text(tr(city, city, city))))
+                  .map((k) => DropdownMenuItem(
+                        value: k,
+                        child: Text(trCity(k)),
+                      ))
                   .toList(),
               onChanged: (v) => setState(() => _selectedBranch = v),
               decoration: InputDecoration(
                 labelText: tr("Выберите филиал", "Filialni tanlang", "Select branch"),
               ),
             ),
+
             const SizedBox(height: 10),
 
             Text(
-              branches[_selectedBranch]!,
+              trAddress(_selectedBranch!),
               style: const TextStyle(color: Colors.grey),
             ),
+
             const SizedBox(height: 20),
 
             Text(
@@ -209,6 +241,7 @@ class _OrderPageState extends State<OrderPage> {
                 Text(tr("Наличные", "Naqd", "Cash")),
               ],
             ),
+
             Row(
               children: [
                 Radio(
@@ -243,7 +276,7 @@ class _OrderPageState extends State<OrderPage> {
                 ),
                 child: Text(
                   "${tr("Оформить заказ", "Buyurtma berish", "Place order")} (${widget.totalAmount.toStringAsFixed(0)} UZS)",
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
             ),

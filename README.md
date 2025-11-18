@@ -1,6 +1,6 @@
-# status_shop
+# Status shop
 
-A new Flutter project.
+An Andorid app for a Status-Shop in Tashkent
 
 ## Getting Started
 
