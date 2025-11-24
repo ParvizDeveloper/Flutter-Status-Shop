@@ -28,7 +28,6 @@ class MyOrdersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const redColor = Color(0xFFE53935);
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
@@ -93,7 +92,6 @@ class MyOrdersPage extends StatelessWidget {
             itemCount: orders.length,
             itemBuilder: (context, i) {
               final order = orders[i].data() as Map<String, dynamic>;
-
               return _orderCard(context, order);
             },
           );
@@ -126,19 +124,14 @@ class MyOrdersPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "№ ${order["orderId"]}",
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-              ),
-              Text(
-                created != null ? formatDate(created) : "",
-                style: const TextStyle(color: Colors.grey, fontSize: 13),
-              ),
-            ],
+          // HEADER: only date
+          Text(
+            created != null ? formatDate(created) : "",
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 15,
+              color: Colors.black87,
+            ),
           ),
 
           const SizedBox(height: 10),
@@ -157,7 +150,7 @@ class MyOrdersPage extends StatelessWidget {
 
           const SizedBox(height: 10),
 
-          // total
+          // TOTAL
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -178,23 +171,23 @@ class MyOrdersPage extends StatelessWidget {
 
           const SizedBox(height: 10),
 
-          // delivery type
+          // DELIVERY TYPE
           Text(
             "${tr(context, "Тип получения", "Olish turi", "Receive method")}: "
-            "${order["delivery_type"] == "pickup" 
-                ? tr(context, "Самовывоз", "Olib ketish", "Pickup") 
+            "${order["delivery_type"] == "pickup"
+                ? tr(context, "Самовывоз", "Olib ketish", "Pickup")
                 : tr(context, "Доставка", "Yetkazib berish", "Delivery")}",
             style: const TextStyle(fontSize: 14),
           ),
 
-          // branch
+          // Branch
           if (order["delivery_type"] == "pickup")
             Text(
               "${tr(context, "Филиал", "Filial", "Branch")}: ${order["branch"]}",
               style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
 
-          // delivery address
+          // Delivery address
           if (order["delivery_type"] == "delivery")
             Text(
               "${tr(context, "Адрес доставки", "Yetkazish manzili", "Delivery address")}: "
@@ -225,7 +218,7 @@ class MyOrdersPage extends StatelessWidget {
             child: Text(
               item["name"] is Map
                   ? item["name"][Provider.of<LanguageProvider>(context).localeCode]
-                      ?? item["name"]["ru"]
+                  ?? item["name"]["ru"]
                   : item["name"],
               maxLines: 2,
               overflow: TextOverflow.ellipsis,

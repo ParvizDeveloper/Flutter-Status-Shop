@@ -28,7 +28,7 @@ class _OrderPageState extends State<OrderPage> {
   String _paymentMethod = "cash";
   String _deliveryType = "pickup";
 
-  /// Многоязычные города + адреса
+  /// Города многоязычные
   final Map<String, Map<String, Map<String, String>>> branches = {
     "tashkent": {
       "name": {"ru": "Ташкент", "uz": "Toshkent", "en": "Tashkent"},
@@ -60,19 +60,24 @@ class _OrderPageState extends State<OrderPage> {
 
   /// Перевод
   String tr(String ru, String uz, String en) {
-    final lang = Provider.of<LanguageProvider>(context, listen: false).localeCode;
+    final lang =
+        Provider.of<LanguageProvider>(context, listen: false).localeCode;
     if (lang == "ru") return ru;
     if (lang == "uz") return uz;
     return en;
   }
 
+  /// Перевод названий городов
   String trCity(String key) {
-    final lang = Provider.of<LanguageProvider>(context, listen: false).localeCode;
+    final lang =
+        Provider.of<LanguageProvider>(context, listen: false).localeCode;
     return branches[key]!["name"]![lang] ?? branches[key]!["name"]!["ru"]!;
   }
 
+  /// Перевод адресов
   String trAddress(String key) {
-    final lang = Provider.of<LanguageProvider>(context, listen: false).localeCode;
+    final lang =
+        Provider.of<LanguageProvider>(context, listen: false).localeCode;
     return branches[key]!["address"]![lang] ?? branches[key]!["address"]!["ru"]!;
   }
 
@@ -82,52 +87,42 @@ class _OrderPageState extends State<OrderPage> {
     loadUser();
   }
 
-  /// Генерация короткого красивого ID как в Uzum
-  String generateShortId() {
-    final t = DateTime.now().millisecondsSinceEpoch;
-    final hex = t.toRadixString(16).toUpperCase();
-    return hex.substring(hex.length - 6); // последние 6 символов
+  /// Генерация короткого красивого ID как Uzum
+  String generateShortOrderId() {
+    const chars = "ABCDEF0123456789";
+    String id = "";
+    for (int i = 0; i < 6; i++) {
+      id += chars[(DateTime.now().microsecondsSinceEpoch + i) % chars.length];
+    }
+    return "UZ-$id";
   }
 
   Future<void> loadUser() async {
     final user = await LocalStorage.readUserFromTxt();
 
-    _nameController.text = "${user['name'] ?? ''} ${user['surname'] ?? ''}".trim();
+    _nameController.text =
+        "${user['name'] ?? ''} ${user['surname'] ?? ''}".trim();
     _phoneController.text = user['phone'] ?? '';
 
-    final cityRu = user['city'] ?? "Ташкент";
-
-    if (cityRu == "Ташкент") _selectedBranch = "tashkent";
-    else if (cityRu == "Самарканд") _selectedBranch = "samarkand";
-    else if (cityRu == "Бухара") _selectedBranch = "bukhara";
+    final ruCity = user['city'] ?? "Ташкент";
+    if (ruCity == "Ташкент") _selectedBranch = "tashkent";
+    else if (ruCity == "Самарканд") _selectedBranch = "samarkand";
+    else if (ruCity == "Бухара") _selectedBranch = "bukhara";
     else _selectedBranch = "tashkent";
 
     setState(() => loading = false);
   }
 
   Future<void> submitOrder() async {
-    // Validation
     if (_nameController.text.trim().isEmpty ||
         _phoneController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr(
-          "Пожалуйста, заполните имя и телефон",
-          "Iltimos, ism va telefonni kiriting",
-          "Please provide name and phone",
-        ))),
-      );
+      _show(tr("Введите имя и телефон", "Ism va telefon kiriting", "Enter name and phone"));
       return;
     }
 
     if (_deliveryType == "delivery" &&
         _deliveryAddressController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr(
-          "Укажите адрес доставки",
-          "Yetkazib berish manzilini kiriting",
-          "Please enter delivery address",
-        ))),
-      );
+      _show(tr("Укажите адрес доставки", "Manzilni kiriting", "Enter delivery address"));
       return;
     }
 
@@ -135,44 +130,27 @@ class _OrderPageState extends State<OrderPage> {
     if (current == null) return;
 
     final uid = current.uid;
-    final email = current.email ?? "";
 
-    /// короткий ID (красивый)
-    final shortId = generateShortId();
-
-    /// длинный ID (для БД)
+    final shortId = generateShortOrderId();
     final orderId = "${uid}_${DateTime.now().millisecondsSinceEpoch}";
 
-    final List<Map<String, dynamic>> items = widget.cartItems.map((item) {
-      return {
-        "name": item["name"], // Map of ru/uz/en
-        "price": item["price"],
-        "quantity": item["quantity"],
-        "meters": item["meters"],
-        "size": item["size"],
-        "image": item["image"],
-        "type": item["type"],
-        "tag": item["tag"],
-        "total": item["total"],
-      };
-    }).toList();
+    final List<Map<String, dynamic>> items =
+        widget.cartItems.map((item) => Map<String, dynamic>.from(item)).toList();
 
     final order = {
       "orderId": orderId,
       "shortId": shortId,
       "uid": uid,
-      "email": email,
+      "email": current.email ?? "",
       "name": _nameController.text.trim(),
       "phone": _phoneController.text.trim(),
-
-      "branch_key": _selectedBranch,
       "branch": trCity(_selectedBranch!),
+      "branch_key": _selectedBranch,
       "branch_address": trAddress(_selectedBranch!),
-
       "delivery_type": _deliveryType,
-      "delivery_address":
-          _deliveryType == "delivery" ? _deliveryAddressController.text.trim() : null,
-
+      "delivery_address": _deliveryType == "delivery"
+          ? _deliveryAddressController.text.trim()
+          : null,
       "payment_method": _paymentMethod,
       "total": widget.totalAmount,
       "items": items,
@@ -183,9 +161,14 @@ class _OrderPageState extends State<OrderPage> {
 
     try {
       await db.collection("orders").doc(orderId).set(order);
-      await db.collection("users").doc(uid).collection("orders").doc(orderId).set(order);
+      await db
+          .collection("users")
+          .doc(uid)
+          .collection("orders")
+          .doc(orderId)
+          .set(order);
 
-      // clear cart
+      // clearing cart
       for (var item in widget.cartItems) {
         await db
             .collection("users")
@@ -195,24 +178,16 @@ class _OrderPageState extends State<OrderPage> {
             .delete();
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr(
-          "Заказ оформлен!",
-          "Buyurtma rasmiylashtirildi!",
-          "Order placed!",
-        ))),
-      );
+      _show(tr("Заказ оформлен!", "Buyurtma bajarildi!", "Order placed!"));
 
       Navigator.pushReplacementNamed(context, "/my_orders");
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr(
-          "Ошибка при оформлении заказа",
-          "Buyurtma berishda xato",
-          "Order failed",
-        ))),
-      );
+      _show(tr("Ошибка оформления", "Xatolik", "Order failed"));
     }
+  }
+
+  void _show(String text) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
   @override
@@ -220,7 +195,9 @@ class _OrderPageState extends State<OrderPage> {
     const redColor = Color(0xFFE53935);
 
     if (loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
     return Scaffold(
@@ -244,6 +221,7 @@ class _OrderPageState extends State<OrderPage> {
                 labelText: tr("Имя и фамилия", "Ism va familiya", "Full name"),
               ),
             ),
+
             const SizedBox(height: 12),
 
             TextField(
@@ -253,12 +231,13 @@ class _OrderPageState extends State<OrderPage> {
                 labelText: tr("Номер телефона", "Telefon raqami", "Phone number"),
               ),
             ),
+
             const SizedBox(height: 12),
 
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                tr("Тип получения", "Qabul turi", "Pickup method"),
+                tr("Тип получения", "Olish turi", "Receive method"),
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
@@ -277,28 +256,29 @@ class _OrderPageState extends State<OrderPage> {
                   groupValue: _deliveryType,
                   onChanged: (v) => setState(() => _deliveryType = v!),
                 ),
-                Text(tr("Доставка до дома", "Uyga yetkazish", "Home delivery")),
+                Text(tr("Доставка до дома", "Uyga yetkazish", "Delivery")),
               ],
             ),
-            const SizedBox(height: 8),
 
             DropdownButtonFormField<String>(
               value: _selectedBranch,
               decoration: InputDecoration(
-                labelText: tr("Выберите филиал", "Filialni tanlang", "Choose branch"),
+                labelText: tr("Выберите филиал", "Filial tanlang", "Choose branch"),
               ),
               items: branches.keys
-                  .map((k) => DropdownMenuItem(value: k, child: Text(trCity(k))))
+                  .map((key) =>
+                      DropdownMenuItem(value: key, child: Text(trCity(key))))
                   .toList(),
               onChanged: (v) => setState(() => _selectedBranch = v),
             ),
 
-            const SizedBox(height: 6),
-
             if (_selectedBranch != null)
-              Text(
-                trAddress(_selectedBranch!),
-                style: const TextStyle(color: Colors.grey),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Text(
+                  trAddress(_selectedBranch!),
+                  style: const TextStyle(color: Colors.grey),
+                ),
               ),
 
             if (_deliveryType == "delivery") ...[
@@ -307,10 +287,9 @@ class _OrderPageState extends State<OrderPage> {
                 controller: _deliveryAddressController,
                 decoration: InputDecoration(
                   labelText: tr(
-                    "Адрес доставки (город, улица, квартал, дом)",
-                    "Manzil (shahar, ko‘cha, mahalla, uy)",
-                    "Delivery address (city, street, block, house)",
-                  ),
+                      "Адрес доставки (город, улица, дом)",
+                      "Manzil (shahar, ko‘cha, uy)",
+                      "Delivery address"),
                 ),
               ),
             ],
@@ -321,9 +300,11 @@ class _OrderPageState extends State<OrderPage> {
               alignment: Alignment.centerLeft,
               child: Text(
                 tr("Способ оплаты", "To'lov turi", "Payment method"),
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
+
             Row(
               children: [
                 Radio<String>(
@@ -342,13 +323,11 @@ class _OrderPageState extends State<OrderPage> {
                   groupValue: _paymentMethod,
                   onChanged: (v) {
                     setState(() => _paymentMethod = v!);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(tr(
-                          "Оплата картой — в разработке",
-                          "Karta bilan to‘lov ishlab chiqilmoqda",
-                          "Card payment in development",
-                        )),
+                    _show(
+                      tr(
+                        "Оплата картой — в разработке",
+                        "Karta orqali to'lov ishlab chiqilmoqda",
+                        "Card payment coming soon",
                       ),
                     );
                   },
@@ -372,7 +351,7 @@ class _OrderPageState extends State<OrderPage> {
                   style: const TextStyle(color: Colors.white),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
