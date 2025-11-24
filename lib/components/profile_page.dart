@@ -71,7 +71,7 @@ class _ProfilePageState extends State<ProfilePage> {
     });
 
     ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(tr(context,'saved'))));
+        .showSnackBar(SnackBar(content: Text(tr(context, 'saved'))));
   }
 
   @override
@@ -85,7 +85,7 @@ class _ProfilePageState extends State<ProfilePage> {
         elevation: 1,
         centerTitle: true,
         title: Text(
-          tr(context,'profile'),
+          tr(context, 'profile'),
           style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
       ),
@@ -93,12 +93,14 @@ class _ProfilePageState extends State<ProfilePage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          /// TOP
+
+          // TOP
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16)),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: Row(
               children: [
                 const CircleAvatar(
@@ -114,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       Text(
                         _nameController.text.isNotEmpty
                             ? _nameController.text
-                            : tr(context,'user'),
+                            : tr(context, 'user'),
                         style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 4),
@@ -138,20 +140,21 @@ class _ProfilePageState extends State<ProfilePage> {
 
           const SizedBox(height: 16),
 
-          _sectionTitle(tr(context,'personal_data')),
+          _sectionTitle(tr(context, 'personal_data')),
 
           Container(
             decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16)),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: Column(
               children: [
-                _editableField(tr(context,'name'), _nameController),
-                _editableField(tr(context,'company'), _companyController),
-                _editableField(tr(context,'position'), _positionController),
-                _editableField(tr(context,'city'), _cityController),
+                _editableField(tr(context, 'name'), _nameController),
+                _editableField(tr(context, 'company'), _companyController),
+                _editableField(tr(context, 'position'), _positionController),
+                _editableField(tr(context, 'city'), _cityController),
 
-                _readonlyField(tr(context,'phone'), _phone),
+                _readonlyField(tr(context, 'phone'), _phone),
                 _readonlyField('Email', _email),
               ],
             ),
@@ -170,32 +173,47 @@ class _ProfilePageState extends State<ProfilePage> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                     child: Text(
-                      tr(context,'save'),
+                      tr(context, 'save'),
                       style: const TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),
 
           const SizedBox(height: 24),
 
-          _sectionTitle(tr(context,'settings')),
+          _sectionTitle(tr(context, 'settings')),
 
-          _settingItem(Icons.shopping_bag_outlined, tr(context,'my_orders')),
-          _settingItem(Icons.rate_review_outlined, tr(context,'my_reviews')),
-          _settingItem(Icons.lock_outline, tr(context,'privacy')),
+          // ---- FIXED ---- МОИ ЗАКАЗЫ теперь работает!
+          _settingItem(
+            Icons.shopping_bag_outlined,
+            tr(context, 'my_orders'),
+            onTap: () {
+              Navigator.pushNamed(context, '/my_orders');
+            },
+          ),
 
-          /// LANGUAGE SELECTOR — MODAL
+          _settingItem(
+            Icons.rate_review_outlined,
+            tr(context, 'my_reviews'),
+          ),
+
+          _settingItem(
+            Icons.lock_outline,
+            tr(context, 'privacy'),
+          ),
+
+          // LANGUAGE SELECTOR
           Card(
             elevation: 0,
             margin: const EdgeInsets.only(bottom: 8),
             child: ListTile(
               leading: const Icon(Icons.language_outlined, color: redColor),
-              title: Text(tr(context,'language')),
+              title: Text(tr(context, 'language')),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () => _showLanguageModal(),
             ),
           ),
 
-          _settingItem(Icons.help_outline, tr(context,'help')),
+          _settingItem(Icons.help_outline, tr(context, 'help')),
 
           const SizedBox(height: 60),
         ],
@@ -207,20 +225,26 @@ class _ProfilePageState extends State<ProfilePage> {
     showModalBottomSheet(
       context: context,
       builder: (_) {
-        print("CURRENT LANG = ${Provider.of<LanguageProvider>(context).localeCode}");
         final lp = Provider.of<LanguageProvider>(context, listen: false);
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(title: const Text('Русский'), onTap: () { lp.setLocale('ru'); Navigator.pop(context); }),
-            ListTile(title: const Text("O'zbekcha"), onTap: () { lp.setLocale('uz'); Navigator.pop(context); }),
-            ListTile(title: const Text('English'), onTap: () { lp.setLocale('en'); Navigator.pop(context); }),
+            ListTile(title: const Text('Русский'), onTap: () {
+              lp.setLocale('ru');
+              Navigator.pop(context);
+            }),
+            ListTile(title: const Text("O'zbekcha"), onTap: () {
+              lp.setLocale('uz');
+              Navigator.pop(context);
+            }),
+            ListTile(title: const Text('English'), onTap: () {
+              lp.setLocale('en');
+              Navigator.pop(context);
+            }),
             const SizedBox(height: 12),
-            
           ],
         );
-        
-      }
+      },
     );
   }
 
@@ -255,14 +279,15 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _readonlyField(String label, String value) =>
       ListTile(title: Text(label), subtitle: Text(value), enabled: false);
 
-  Widget _settingItem(IconData icon, String title) => Card(
-    elevation: 0,
-    margin: const EdgeInsets.only(bottom: 8),
-    child: ListTile(
-      leading: Icon(icon, color: Colors.redAccent),
-      title: Text(title),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: () {},
-    ),
-  );
+  Widget _settingItem(IconData icon, String title, {VoidCallback? onTap}) =>
+      Card(
+        elevation: 0,
+        margin: const EdgeInsets.only(bottom: 8),
+        child: ListTile(
+          leading: Icon(icon, color: Colors.redAccent),
+          title: Text(title),
+          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: onTap,
+        ),
+      );
 }

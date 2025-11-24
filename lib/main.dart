@@ -14,6 +14,7 @@ import 'components/profile_page.dart';
 import 'firebase_options.dart';
 import 'pages/product_page.dart';
 import 'base/translation.dart';
+import 'pages/my_orders.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,6 +47,7 @@ class StatusShopApp extends StatelessWidget {
         '/mainpage': (_) => const MainPage(),
         '/profile': (_) => const ProfilePage(),
         '/product': (_) => const ProductPage(product: {}),
+        '/my_orders': (_) => const MyOrdersPage(),
       },
     );
   }
