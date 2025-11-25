@@ -408,73 +408,82 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   // ---------------------------------------
-  // ADD TO CART BUTTON  **FIXED**
-  // ---------------------------------------
-  Widget _buildAddToCartButton(Color redColor, Map<String, dynamic> product) {
-    return SizedBox(
-      width: double.infinity,
+// ADD TO CART BUTTON — with color support
+// ---------------------------------------
+Widget _buildAddToCartButton(Color redColor, Map<String, dynamic> product) {
+  return SizedBox(
+    width: double.infinity,
 
-      child: ElevatedButton.icon(
-        icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white),
+    child: ElevatedButton.icon(
+      icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white),
 
-        label: Text(
-          tr("Добавить в корзину", "Savatchaga qo‘shish", "Add to cart"),
-          style: const TextStyle(fontSize: 16, color: Colors.white),
-        ),
+      label: Text(
+        tr("Добавить в корзину", "Savatchaga qo‘shish", "Add to cart"),
+        style: const TextStyle(fontSize: 16, color: Colors.white),
+      ),
 
-        style: ElevatedButton.styleFrom(
-          backgroundColor: redColor,
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: redColor,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
 
-        onPressed: () async {
-          if (product['type'] == 'clothes' && _selectedSize == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(
-                  tr("Выберите размер", "O‘lcham tanlang", "Select size"))),
-            );
-            return;
-          }
-
-          final user = FirebaseAuth.instance.currentUser;
-
-          if (user == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(
-                  tr("Войдите в аккаунт", "Akkauntga kiring", "Sign in first"))),
-            );
-            return;
-          }
-
-          final itemId = '${product['type']}_${DateTime.now().millisecondsSinceEpoch}';
-
-          /// 🔥 FIX — сохраняем ПОЛНЫЙ Map с переводами
-          final item = {
-            'name': product['name'],   // <–– сохранить весь Map: ru / uz / en
-            'description': product['description'], // тоже Map
-            'type': product['type'],
-            'image': product['images'][_selectedColorIndex],
-            'price': product['price'],
-            'quantity': _quantity,
-            'meters': _meters,
-            'size': _selectedSize,
-            'total': totalPrice,
-            'tag': itemId,
-            'createdAt': FieldValue.serverTimestamp(),
-          };
-
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(user.uid)
-              .collection('cart')
-              .doc(itemId)
-              .set(item);
-
+      onPressed: () async {
+        if (product['type'] == 'clothes' && _selectedSize == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(
-                tr("🛒 Товар добавлен в корзину", "🛒 Tovar savatchaga qo‘shildi",
-                    "🛒 Added to cart"))),
+                tr("Выберите размер", "O‘lcham tanlang", "Select size"))),
+          );
+          return;
+        }
+
+        final user = FirebaseAuth.instance.currentUser;
+
+        if (user == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(
+                tr("Войдите в аккаунт", "Akkauntga kiring", "Sign in first"))),
+          );
+          return;
+        }
+
+        final itemId =
+            '${product['type']}_${DateTime.now().millisecondsSinceEpoch}';
+
+        // 🔥 Получаем название цвета по имени файла
+        String colorName = "";
+        try {
+          final path = product['images'][_selectedColorIndex];
+          colorName = path.split('/').last.split('.').first; // PU 1
+        } catch (_) {}
+
+        // 🔥 Сохраняем полный набор данных
+        final item = {
+          'name': product['name'],          // Map: ru/uz/en
+          'description': product['description'], 
+          'type': product['type'],
+          'image': product['images'][_selectedColorIndex],
+          'color': colorName,               // <- 🔥 цвет
+          'price': product['price'],
+          'quantity': _quantity,
+          'meters': _meters,
+          'size': _selectedSize,
+          'total': totalPrice,
+          'tag': itemId,
+          'createdAt': FieldValue.serverTimestamp(),
+        };
+
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .collection('cart')
+            .doc(itemId)
+            .set(item);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(
+              tr("🛒 Товар добавлен в корзину", "🛒 Tovar savatchaga qo‘shildi",
+                  "🛒 Added to cart"))),
           );
         },
       ),

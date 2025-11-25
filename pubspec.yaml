@@ -51,6 +51,11 @@ flutter:
     - assets/images/
     - assets/vinill/pu/
     - assets/vinill/
+    - assets/vinill/pvc/
+    - assets/vinill/glitter/
+    - assets/vinill/metalic/
+    - assets/vinill/reflective/
+    - assets/vinill/stretch/
 
 l10n:
   arb-dir: lib/l10n

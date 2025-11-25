@@ -11,7 +11,7 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'Футболка Статус', 'uz': 'Status futbolkasi', 'en': 'Status T-shirt'},
     'price': 95000,
-    'images': ['assets/images/product_sample.png'],
+    'images': ['assets/images/tshirt.png'],
     'description': {
       'ru': 'Футболка из плотного хлопка премиум-класса. Хорошо держит форму, приятная к телу, идеально подходит для термопереноса и повседневной носки.',
       'uz': 'Premium sifatli paxtadan tikilgan futbolka. Yaxshi shaklni saqlaydi, teriga yoqimli, termo bosma va kundalik kiyim uchun ideal.',
@@ -29,7 +29,7 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'Футболка Классик', 'uz': 'Classic futbolkasi', 'en': 'Classic T-shirt'},
     'price': 90000,
-    'images': ['assets/images/product_sample.png'],
+    'images': ['assets/images/tshirt.png'],
     'description': {
       'ru': 'Лёгкая классическая футболка с аккуратным швом. Удобна для повседневной носки и нанесения небольших принтов.',
       'uz': 'Yengil klassik futbolka, toza tikuv bilan. Kundalik kiyim va kichik printlar uchun qulay.',
@@ -46,7 +46,7 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'Кепка', 'uz': 'Kepka', 'en': 'Cap'},
     'price': 80000,
-    'images': ['assets/images/product_sample.png'],
+    'images': ['assets/images/cap.png'],
     'description': {
       'ru': 'Универсальная кепка с регулируемой застёжкой. Подходит для нанесения вышивки и небольших термонаклеек.',
       'uz': 'Sozlanadigan qulflanishli universal kepka. Tikuv va kichik termo naqshlar uchun mos.',
@@ -127,20 +127,36 @@ final List<Map<String, dynamic>> allProducts = [
   },
 
   {
-    'name': {'ru': 'PVC Flex', 'uz': 'PVC Flex', 'en': 'PVC Flex'},
-    'price': 120000,
-    'images': ['assets/vinill/pvc.png'],
-    'description': {
-      'ru': 'Плотная PVC-плёнка для устойчивых к износу принтов. Подходит для рабочей и промо-одежды.',
-      'uz': 'Kuchli PVC plyonka, aşınishga bardoshli printlar uchun. Ish kiyimi va promo kiyimlar uchun mos.',
-      'en': 'Durable PVC film for wear-resistant prints. Good for workwear and promo apparel.'
-    },
-    'characteristics': {
-      'width': {'ru':'50 см','uz':'50 sm','en':'50 cm'},
-      'temp': {'ru':'155°C','uz':'155°C','en':'155°C'},
-    },
-    'type': 'vinil',
+  'name': {'ru': 'PVC Flex', 'uz': 'PVC Flex', 'en': 'PVC Flex'},
+  'price': 120000,
+
+  // 🔥 Только твои реальные цвета
+  'images': [
+    'assets/vinill/pvc/pvc_1.png',
+    'assets/vinill/pvc/pvc_2.png',
+    'assets/vinill/pvc/pvc_3.png',
+    'assets/vinill/pvc/pvc_9.png',
+    'assets/vinill/pvc/pvc_11.png',
+    'assets/vinill/pvc/pvc_15.png',
+    'assets/vinill/pvc/pvc_17.png',
+    'assets/vinill/pvc/pvc_28.png',
+    'assets/vinill/pvc/pvc_31.png',
+  ],
+
+  'description': {
+    'ru': 'Плотная PVC-плёнка для устойчивых к износу принтов. Подходит для рабочей и промо-одежды.',
+    'uz': 'Kuchli PVC plyonka, aşınishga bardoshli printlar uchun. Ish kiyimi va promo kiyimlar uchun mos.',
+    'en': 'Durable PVC film for wear-resistant prints. Good for workwear and promo apparel.'
   },
+
+  'characteristics': {
+    'width': {'ru':'50 см','uz':'50 sm','en':'50 cm'},
+    'temp': {'ru':'155°C','uz':'155°C','en':'155°C'},
+  },
+
+  'type': 'vinil',
+},
+
 
   {
     'name': {'ru': 'Flock', 'uz': 'Flock', 'en': 'Flock'},
@@ -159,57 +175,87 @@ final List<Map<String, dynamic>> allProducts = [
   },
 
   {
-    'name': {'ru': 'Stretch Foil', 'uz': 'Stretch Foil', 'en': 'Stretch Foil'},
-    'price': 160000,
-    'images': ['assets/vinill/stretch.png'],
-    'description': {
-      'ru': 'Металлизированная плёнка с хорошей тянущейся способностью — подходит для эффектных надписей и декоративных элементов.',
-      'uz': 'Ajoyib cho‘ziladigan metall plyonka — dekorativ yozuvlar uchun mos.',
-      'en': 'Metallic film with good stretchability — ideal for eye-catching lettering and decorations.'
-    },
-    'characteristics': {
-      'width': {'ru':'50 см','uz':'50 sm','en':'50 cm'},
-      'temp': {'ru':'145°C','uz':'145°C','en':'145°C'},
-    },
-    'type': 'vinil',
+  'name': {
+    'ru': 'Stretch Foil',
+    'uz': 'Stretch Foil',
+    'en': 'Stretch Foil'
   },
 
+  'price': 160000,
+
+  /// все цвета Stretch Foil
+  'images': [
+    'assets/vinill/stretch/stretch_black.png',
+    'assets/vinill/stretch/stretch_gold.png',
+    'assets/vinill/stretch/stretch_rainbow.png',
+    'assets/vinill/stretch/stretch_zebra.png',
+  ],
+
+  'description': {
+    'ru': 'Металлизированная плёнка с хорошей тянущейся способностью — подходит для эффектных надписей и декоративных элементов.',
+    'uz': 'Ajoyib cho‘ziladigan metall plyonka — dekorativ yozuvlar uchun mos.',
+    'en': 'Metallic film with good stretchability — ideal for eye-catching lettering and decorations.'
+  },
+
+  'characteristics': {
+    'width': {
+      'ru': '50 см',
+      'uz': '50 sm',
+      'en': '50 cm'
+    },
+    'temp': {
+      'ru': '145°C',
+      'uz': '145°C',
+      'en': '145°C'
+    },
+  },
+
+  'type': 'vinil',
+},
+
   {
-    'name': {'ru': 'Metalic Flex', 'uz': 'Metalic Flex', 'en': 'Metalic Flex'},
+    'name': {
+      'ru': 'Metalic Flex',
+      'uz': 'Metalic Flex',
+      'en': 'Metalic Flex'
+    },
     'price': 150000,
-    'images': ['assets/vinill/metallic.png'],
+
+    /// 2 варианта цвета
+    'images': [
+      'assets/vinill/metalic/metallic_gold.png',
+      'assets/vinill/metalic/metallic_silver.png',
+    ],
+
     'description': {
       'ru': 'Глянцевая металлизированная плёнка для ярких, блестящих дизайнов.',
       'uz': 'Yorqin porloq metall plyonka — ko‘zni quvontiruvchi dizaynlar uchun.',
       'en': 'Glossy metallic film for bright, shiny designs.'
     },
+
     'characteristics': {
-      'width': {'ru':'50 см','uz':'50 sm','en':'50 cm'},
-      'temp': {'ru':'150°C','uz':'150°C','en':'150°C'},
+      'width': {
+        'ru': '50 см',
+        'uz': '50 sm',
+        'en': '50 cm'
+      },
+      'temp': {
+        'ru': '150°C',
+        'uz': '150°C',
+        'en': '150°C'
+      },
     },
+
     'type': 'vinil',
-  },
+    },
 
   {
-    'name': {'ru': 'Фосфор Flex', 'uz': 'Fosfor Flex', 'en': 'Phosphor Flex'},
-    'price': 170000,
-    'images': ['assets/vinill/phosphor.png'],
-    'description': {
-      'ru': 'Особый винил, светящийся в темноте — эффектный выбор для дизайнерских акцентов и безопасности.',
-      'uz': 'Qorong‘uda porlaydigan vinil — dizayn aksentlari va xavfsizlik uchun ideal.',
-      'en': 'Glow-in-the-dark vinyl — striking option for accents and visibility.'
-    },
-    'characteristics': {
-      'width': {'ru':'50 см','uz':'50 sm','en':'50 cm'},
-      'temp': {'ru':'150°C','uz':'150°C','en':'150°C'},
-    },
-    'type': 'vinil',
-  },
-
-  {
-    'name': {'ru': 'Рефлектор Flex', 'uz': 'Reflector Flex', 'en': 'Reflector Flex'},
+    'name': {'ru': 'Reflective Flex', 'uz': 'Reflective Flex', 'en': 'Reflective Flex'},
     'price': 155000,
-    'images': ['assets/vinill/reflector.png'],
+    'images': [
+      'assets/vinill/reflective/reflective_black.png',
+      'assets/vinill/reflective/reflective_chameleon.png'
+    ],
     'description': {
       'ru': 'Светоотражающий винил для спортивной и рабочей одежды — повышает видимость в темное время суток.',
       'uz': 'Yorug‘lik aks ettiruvchi vinil — sport va ish kiyimi uchun xavfsizlikni oshiradi.',
@@ -218,22 +264,6 @@ final List<Map<String, dynamic>> allProducts = [
     'characteristics': {
       'width': {'ru':'50 см','uz':'50 sm','en':'50 cm'},
       'temp': {'ru':'150°C','uz':'150°C','en':'150°C'},
-    },
-    'type': 'vinil',
-  },
-
-  {
-    'name': {'ru': 'Silicon Flex', 'uz': 'Silicon Flex', 'en': 'Silicon Flex'},
-    'price': 180000,
-    'images': ['assets/vinill/silicon.png'],
-    'description': {
-      'ru': 'Объёмная силиконовая плёнка для 3D-эффекта. Устойчивость к истиранию и яркость цвета.',
-      'uz': '3D effekti uchun silikon plyonka. Eskirishga bardoshli va ranglari yorqin.',
-      'en': 'Volumetric silicone film for 3D effect. Wear-resistant and vivid colors.'
-    },
-    'characteristics': {
-      'width': {'ru':'50 см','uz':'50 sm','en':'50 cm'},
-      'temp': {'ru':'155°C','uz':'155°C','en':'155°C'},
     },
     'type': 'vinil',
   },
@@ -433,13 +463,11 @@ final List<Map<String, dynamic>> allProducts = [
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  // ФОРМАТ ЦЕНЫ
   String formatPrice(num price) {
     final formatter = NumberFormat('#,###', 'ru');
     return '${formatter.format(price)} UZS';
   }
 
-  // ЛОКАЛИЗОВАННЫЙ ТЕКСТ
   String tr(BuildContext context, String ru, String uz, String en) {
     final lang = context.watch<LanguageProvider>().localeCode;
     if (lang == 'ru') return ru;
@@ -447,7 +475,6 @@ class HomePage extends StatelessWidget {
     return en;
   }
 
-  // ПЕРЕВОД НАЗВАНИЯ ТОВАРА
   String trName(BuildContext context, Map product) {
     final lang = context.watch<LanguageProvider>().localeCode;
     final name = product['name'];
@@ -455,24 +482,26 @@ class HomePage extends StatelessWidget {
     return name.toString();
   }
 
-  // ПЕРЕВОД КАТЕГОРИЙ
   String trCategoryText(BuildContext context, String ruCat) {
     return {
       "Текстиль": tr(context, "Текстиль", "Tekstil", "Textile"),
       "Термо винил": tr(context, "Термо винил", "Termo vinil", "Heat vinyl"),
-      "DTF материалы": tr(context, "DTF материалы", "DTF materiallari", "DTF materials"),
-      "Сублимационные кружки":
-          tr(context, "Сублимационные кружки", "Sublimatsiya krujkalar", "Sublimation mugs"),
-      "Оборудование": tr(context, "Оборудование", "Uskunalar", "Equipment"),
+      "DTF материалы":
+          tr(context, "DTF материалы", "DTF materiallari", "DTF materials"),
+      "Сублимационные кружки": tr(context, "Сублимационные кружки",
+          "Sublimatsiya krujkalar", "Sublimation mugs"),
+      "Оборудование":
+          tr(context, "Оборудование", "Uskunalar", "Equipment"),
     }[ruCat] ?? ruCat;
   }
 
   @override
   Widget build(BuildContext context) {
-    final String tCategories = tr(context, "Категории", "Kategoriyalar", "Categories");
-    final String tPopular = tr(context, "Популярное", "Ommabop", "Popular");
-    final String tRecommended = tr(context, "Рекомендуем", "Tavsiya qilamiz", "Recommended");
-    final String tAbout = tr(context, "О нас", "Biz haqimizda", "About us");
+    final tCategories = tr(context, "Категории", "Kategoriyalar", "Categories");
+    final tPopular = tr(context, "Популярное", "Ommabop", "Popular");
+    final tRecommended = tr(context, "Рекомендуем", "Tavsiya qilamiz", "Recommended");
+    final tAbout = tr(context, "О нас", "Biz haqimizda", "About us");
+    final tMore = tr(context, "Подробнее", "Batafsil", "More");
 
     const redColor = Color(0xFFE53935);
 
@@ -484,43 +513,6 @@ class HomePage extends StatelessWidget {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // 🔎 ПОИСК
-            SliverAppBar(
-              backgroundColor: Colors.white,
-              floating: true,
-              elevation: 1,
-              titleSpacing: 10,
-              title: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.search, color: Colors.grey),
-                          const SizedBox(width: 6),
-                          Text(
-                            tr(context, "Поиск...", "Qidiruv...", "Search..."),
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.favorite_border, color: redColor),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.notifications_none, color: redColor),
-                ],
-              ),
-            ),
-
-            // 📌 ОСНОВНОЙ КОНТЕНТ
             SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -536,7 +528,7 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
 
-                  // КАТЕГОРИИ
+                  // ---- КАТЕГОРИИ ----
                   _sectionTitle(tCategories),
                   SizedBox(
                     height: 110,
@@ -553,46 +545,50 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
 
-                  // БАННЕР
+                  // ---- БАННЕР ----
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
-                      child: Image.asset(
-                        'assets/images/sale_banner.png',
-                        height: 150,
-                        fit: BoxFit.cover,
+                      child: AspectRatio(
+                        aspectRatio: 16 / 6.5,
+                        child: Image.asset(
+                          'assets/images/sale_banner.png',
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ),
 
-                  // ПОПУЛЯРНОЕ
+                  // ---- ПОПУЛЯРНОЕ ----
                   _sectionTitle(tPopular),
                   SizedBox(
-                    height: 260,
+                    height: 285,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       itemCount: featured.length,
-                      itemBuilder: (c, i) => _productCard(context, featured[i]),
+                      itemBuilder: (c, i) =>
+                          _productCard(context, featured[i], tMore),
                     ),
                   ),
 
-                  // РЕКОМЕНДУЕМ
+                  // ---- РЕКОМЕНДУЕМ ----
                   _sectionTitle(tRecommended),
                   SizedBox(
-                    height: 260,
+                    height: 285,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       itemCount: recommended.length,
-                      itemBuilder: (c, i) => _productCard(context, recommended[i]),
+                      itemBuilder: (c, i) =>
+                          _productCard(context, recommended[i], tMore),
                     ),
                   ),
 
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 40),
 
-                  // О НАС
+                  // ---- О НАС ----
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -620,16 +616,14 @@ class HomePage extends StatelessWidget {
                   const SizedBox(height: 40),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
 
-  // -----------------------------------------------
-  // ЗАГОЛОВОК СЕКЦИИ
-  // -----------------------------------------------
+  // Заголовок секции
   Widget _sectionTitle(String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -640,15 +634,15 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // -----------------------------------------------
-  // КАТЕГОРИЯ
-  // -----------------------------------------------
+  // Категория
   Widget _category(BuildContext context, IconData icon, String ruCat) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => CatalogPage(preselectedCategory: ruCat)),
+          MaterialPageRoute(
+            builder: (_) => CatalogPage(preselectedCategory: ruCat),
+          ),
         );
       },
       child: Padding(
@@ -666,7 +660,6 @@ class HomePage extends StatelessWidget {
               child: Icon(icon, color: const Color(0xFFE53935), size: 30),
             ),
             const SizedBox(height: 6),
-
             Text(
               trCategoryText(context, ruCat),
               style: const TextStyle(fontSize: 13),
@@ -677,19 +670,20 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // -----------------------------------------------
-  // КАРТОЧКА ТОВАРА
-  // -----------------------------------------------
-  Widget _productCard(BuildContext context, Map<String, dynamic> product) {
+  // 🔥 Исправленная карточка товара (кликабельная!)
+  Widget _productCard(
+      BuildContext context, Map<String, dynamic> product, String tMore) {
     const redColor = Color(0xFFE53935);
 
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => ProductPage(product: product)),
-      ),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => ProductPage(product: product)),
+        );
+      },
       child: Container(
-        width: 160,
+        width: 170,
         margin: const EdgeInsets.only(right: 12),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -706,7 +700,8 @@ class HomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(14)),
               child: Image.asset(
                 product['images'][0],
                 height: 140,
@@ -723,7 +718,8 @@ class HomePage extends StatelessWidget {
                   Text(
                     trName(context, product),
                     maxLines: 2,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w500),
                   ),
 
                   const SizedBox(height: 4),
@@ -734,6 +730,28 @@ class HomePage extends StatelessWidget {
                       color: redColor,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  /// Кнопка "Подробнее"
+                  SizedBox(
+                    width: double.infinity,
+                    child: Container(
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: redColor,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        tMore,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600),
+                      ),
                     ),
                   ),
                 ],

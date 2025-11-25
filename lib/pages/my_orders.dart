@@ -26,6 +26,33 @@ class MyOrdersPage extends StatelessWidget {
     return "${formatter.format(value)} UZS";
   }
 
+  /// --- Цвета статусов как в Uzum ---
+  Color statusColor(String status) {
+    switch (status) {
+      case "pending": return Colors.orange;
+      case "processing": return Colors.blue;
+      case "delivering": return Colors.purple;
+      case "completed": return Colors.green;
+      default: return Colors.grey;
+    }
+  }
+
+  /// --- Текст статуса ---
+  String statusText(BuildContext context, String status) {
+    switch (status) {
+      case "pending":
+        return tr(context, "Принят", "Qabul qilindi", "Accepted");
+      case "processing":
+        return tr(context, "Собирается", "Yig‘ilmoqda", "Processing");
+      case "delivering":
+        return tr(context, "Доставляется", "Yetkazilmoqda", "Delivering");
+      case "completed":
+        return tr(context, "Завершён", "Tugallangan", "Completed");
+      default:
+        return tr(context, "Неизвестно", "Noma'lum", "Unknown");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -106,6 +133,8 @@ class MyOrdersPage extends StatelessWidget {
     final created = order["createdAt"] as Timestamp?;
     final items = List<Map<String, dynamic>>.from(order["items"] ?? []);
 
+    final status = order["status"] ?? "pending"; // default
+
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(12),
@@ -124,14 +153,35 @@ class MyOrdersPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // HEADER: only date
-          Text(
-            created != null ? formatDate(created) : "",
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 15,
-              color: Colors.black87,
-            ),
+          // HEADER: Date + Status
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                created != null ? formatDate(created) : "",
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                  color: Colors.black87,
+                ),
+              ),
+
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: statusColor(status).withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  statusText(context, status),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: statusColor(status),
+                  ),
+                ),
+              ),
+            ],
           ),
 
           const SizedBox(height: 10),
@@ -218,7 +268,7 @@ class MyOrdersPage extends StatelessWidget {
             child: Text(
               item["name"] is Map
                   ? item["name"][Provider.of<LanguageProvider>(context).localeCode]
-                  ?? item["name"]["ru"]
+                    ?? item["name"]["ru"]
                   : item["name"],
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
