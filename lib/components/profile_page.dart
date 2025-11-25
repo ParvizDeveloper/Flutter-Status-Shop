@@ -78,150 +78,157 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     const redColor = Color(0xFFE53935);
 
-    return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        centerTitle: true,
-        title: Text(
-          tr(context, 'profile'),
-          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-      ),
+    // Оборачиваем Scaffold в Consumer, чтобы страница пересобиралась при смене языка
+    return Consumer<LanguageProvider>(
+      builder: (context, lp, _) {
+        return Scaffold(
+          backgroundColor: Colors.grey.shade100,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 1,
+            centerTitle: true,
+            title: Text(
+              tr(context, 'profile'),
+              style:
+                  const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            ),
+          ),
 
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-
-          // TOP
-          Container(
+          body: ListView(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              children: [
-                const CircleAvatar(
-                  radius: 40,
-                  backgroundImage: AssetImage('assets/images/profile_avatar.png'),
-                ),
-                const SizedBox(width: 16),
+            children: [
 
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _nameController.text.isNotEmpty
-                            ? _nameController.text
-                            : tr(context, 'user'),
-                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+              // TOP
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: [
+                    const CircleAvatar(
+                      radius: 40,
+                      backgroundImage: AssetImage('assets/images/profile_avatar.png'),
+                    ),
+                    const SizedBox(width: 16),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _nameController.text.isNotEmpty
+                                ? _nameController.text
+                                : tr(context, 'user'),
+                            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(_email, style: const TextStyle(color: Colors.grey)),
+                        ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(_email, style: const TextStyle(color: Colors.grey)),
-                    ],
-                  ),
-                ),
-
-                IconButton(
-                  icon: const Icon(Icons.logout, color: Colors.grey),
-                  onPressed: () async {
-                    await _auth.signOut();
-                    if (context.mounted) {
-                      Navigator.pushReplacementNamed(context, '/login');
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          _sectionTitle(tr(context, 'personal_data')),
-
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              children: [
-                _editableField(tr(context, 'name'), _nameController),
-                _editableField(tr(context, 'company'), _companyController),
-                _editableField(tr(context, 'position'), _positionController),
-                _editableField(tr(context, 'city'), _cityController),
-
-                _readonlyField(tr(context, 'phone'), _phone),
-                _readonlyField('Email', _email),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          if (_editing)
-            _saving
-                ? const Center(child: CircularProgressIndicator(color: redColor))
-                : ElevatedButton(
-                    onPressed: _saveChanges,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: redColor,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: Text(
-                      tr(context, 'save'),
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
+
+                    IconButton(
+                      icon: const Icon(Icons.logout, color: Colors.grey),
+                      onPressed: () async {
+                        await _auth.signOut();
+                        if (context.mounted) {
+                          Navigator.pushReplacementNamed(context, '/login');
+                        }
+                      },
                     ),
-                  ),
+                  ],
+                ),
+              ),
 
-          const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
-          _sectionTitle(tr(context, 'settings')),
+              _sectionTitle(tr(context, 'personal_data')),
 
-          // ---- FIXED ---- МОИ ЗАКАЗЫ теперь работает!
-          _settingItem(
-            Icons.shopping_bag_outlined,
-            tr(context, 'my_orders'),
-            onTap: () {
-              Navigator.pushNamed(context, '/my_orders');
-            },
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    _editableField(tr(context, 'name'), _nameController),
+                    _editableField(tr(context, 'company'), _companyController),
+                    _editableField(tr(context, 'position'), _positionController),
+                    _editableField(tr(context, 'city'), _cityController),
+
+                    _readonlyField(tr(context, 'phone'), _phone),
+                    _readonlyField('Email', _email),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              if (_editing)
+                _saving
+                    ? const Center(child: CircularProgressIndicator(color: redColor))
+                    : ElevatedButton(
+                        onPressed: _saveChanges,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: redColor,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        child: Text(
+                          tr(context, 'save'),
+                          style: const TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      ),
+
+              const SizedBox(height: 24),
+
+              _sectionTitle(tr(context, 'settings')),
+
+              // ---- FIXED ---- МОИ ЗАКАЗЫ теперь работает!
+              _settingItem(
+                Icons.shopping_bag_outlined,
+                tr(context, 'my_orders'),
+                onTap: () {
+                  Navigator.pushNamed(context, '/my_orders');
+                },
+              ),
+
+              _settingItem(
+                Icons.rate_review_outlined,
+                tr(context, 'my_reviews'),
+              ),
+
+              _settingItem(
+                Icons.lock_outline,
+                tr(context, 'privacy'),
+              ),
+
+              // LANGUAGE SELECTOR
+              Card(
+                elevation: 0,
+                margin: const EdgeInsets.only(bottom: 8),
+                child: ListTile(
+                  leading: const Icon(Icons.language_outlined, color: redColor),
+                  title: Text(tr(context, 'language')),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () => _showLanguageModal(),
+                ),
+              ),
+
+              _settingItem(Icons.help_outline, tr(context, 'help')),
+
+              const SizedBox(height: 60),
+            ],
           ),
-
-          _settingItem(
-            Icons.rate_review_outlined,
-            tr(context, 'my_reviews'),
-          ),
-
-          _settingItem(
-            Icons.lock_outline,
-            tr(context, 'privacy'),
-          ),
-
-          // LANGUAGE SELECTOR
-          Card(
-            elevation: 0,
-            margin: const EdgeInsets.only(bottom: 8),
-            child: ListTile(
-              leading: const Icon(Icons.language_outlined, color: redColor),
-              title: Text(tr(context, 'language')),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () => _showLanguageModal(),
-            ),
-          ),
-
-          _settingItem(Icons.help_outline, tr(context, 'help')),
-
-          const SizedBox(height: 60),
-        ],
-      ),
+        );
+      },
     );
   }
 
   void _showLanguageModal() {
+    // В модальном окне используем внешний context для Provider — listen: false достаточно
     showModalBottomSheet(
       context: context,
       builder: (_) {

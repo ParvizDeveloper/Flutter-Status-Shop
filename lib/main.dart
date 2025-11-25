@@ -1,8 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'dart:async';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/language_provider.dart';
@@ -62,21 +63,30 @@ class ConnectionChecker extends StatefulWidget {
 
 class _ConnectionCheckerState extends State<ConnectionChecker> {
   bool _hasInternet = true;
-  StreamSubscription? _subscription;
+
+  // Новая версия connectivity_plus → приходит LIST<ConnectivityResult>
+  StreamSubscription<List<ConnectivityResult>>? _subscription;
 
   @override
   void initState() {
     super.initState();
-    _check();
-    _subscription =
-        Connectivity().onConnectivityChanged.listen((c) {
-      setState(() => _hasInternet = c != ConnectivityResult.none);
+    _initConnectivity();
+
+    _subscription = Connectivity().onConnectivityChanged.listen((results) {
+      // results — List<ConnectivityResult>
+      final connected = results.isNotEmpty &&
+          results.first != ConnectivityResult.none;
+
+      setState(() => _hasInternet = connected);
     });
   }
 
-  Future<void> _check() async {
-    final c = await Connectivity().checkConnectivity();
-    setState(() => _hasInternet = c != ConnectivityResult.none);
+  Future<void> _initConnectivity() async {
+    final results = await Connectivity().checkConnectivity();
+    final connected =
+        results.isNotEmpty && results.first != ConnectivityResult.none;
+
+    setState(() => _hasInternet = connected);
   }
 
   @override
@@ -87,15 +97,35 @@ class _ConnectionCheckerState extends State<ConnectionChecker> {
 
   @override
   Widget build(BuildContext context) {
-    return _hasInternet
-        ? const LoginScreen()
-        : const NoInternetScreen();
+    if (!_hasInternet) {
+      return const NoInternetScreen();
+    }
+
+    // Проверяем авторизацию Firebase
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final user = snapshot.data;
+
+        if (user != null) {
+          return const MainPage(); // уже авторизован
+        }
+
+        return const LoginScreen(); // не авторизован
+      },
+    );
   }
 }
 
 class NoInternetScreen extends StatelessWidget {
   const NoInternetScreen({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,7 +138,8 @@ class NoInternetScreen extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               tr(context, 'cart_empty'),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              style:
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             const Text('Проверьте соединение и перезапустите приложение.'),

@@ -56,7 +56,7 @@ final List<Map<String, dynamic>> allProducts = [
       'material': {'ru':'Хлопок','uz':'Paxta','en':'Cotton'},
       'adjustment': {'ru':'Регулируемая застёжка','uz':'Sozlanadigan qulflash','en':'Adjustable strap'},
     },
-    'type': 'clothes',
+    'type': 'cap',
   },
 
   {
@@ -105,7 +105,7 @@ final List<Map<String, dynamic>> allProducts = [
       'material': {'ru':'Спанбонд','uz':'Spanbond','en':'Spunbond'},
       'size': {'ru':'40×35 см','uz':'40×35 sm','en':'40×35 cm'},
     },
-    'type': 'clothes',
+    'type': 'bag',
   },
 
   // --- VINYL ---
