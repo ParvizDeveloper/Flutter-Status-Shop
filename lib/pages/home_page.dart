@@ -161,7 +161,16 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'Flock', 'uz': 'Flock', 'en': 'Flock'},
     'price': 130000,
-    'images': ['assets/vinill/flock.png'],
+    'images': [
+      'assets/vinill/flock/flock_black.png',
+      'assets/vinill/flock/flock_cream.png',
+      'assets/vinill/flock/flock_darkpink.png',
+      'assets/vinill/flock/flock_green.png',
+      'assets/vinill/flock/flock_indigo.png',
+      'assets/vinill/flock/flock_red.png',
+      'assets/vinill/flock/flock_sky.png',
+      'assets/vinill/flock/flock_yellow.png',
+    ],
     'description': {
       'ru': 'Бархатистый винил с мягкой текстурой — придаёт изделиям приятный тактильный эффект.',
       'uz': 'Yumshoq teksturali barxat vinil — buyumlarga yoqimli teginish beradi.',

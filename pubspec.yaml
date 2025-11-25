@@ -47,7 +47,6 @@ flutter:
   assets:
     - assets/images/logo.png
     - assets/images/sale_banner.png
-    - assets/images/product_sample.png
     - assets/images/
     - assets/vinill/pu/
     - assets/vinill/
@@ -56,6 +55,7 @@ flutter:
     - assets/vinill/metalic/
     - assets/vinill/reflective/
     - assets/vinill/stretch/
+    - assets/vinill/flock/
 
 l10n:
   arb-dir: lib/l10n
