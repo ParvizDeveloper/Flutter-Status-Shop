@@ -32,7 +32,6 @@ class _CatalogPageState extends State<CatalogPage> {
     _selectedCategory = widget.preselectedCategory ?? 'Текстиль';
   }
 
-  /// ЛОКАЛИЗАЦИЯ ТЕКСТА
   String tr(BuildContext context, String ru, String uz, String en) {
     final lang = context.watch<LanguageProvider>().localeCode;
     if (lang == 'ru') return ru;
@@ -40,19 +39,17 @@ class _CatalogPageState extends State<CatalogPage> {
     return en;
   }
 
-  /// Перевод Категорий
   String trCategory(BuildContext context, String ru) {
     return {
-      "Текстиль":          tr(context, "Текстиль", "Tekstil", "Textile"),
-      "Термо винил":       tr(context, "Термо винил", "Termo vinil", "Heat vinyl"),
-      "DTF материалы":     tr(context, "DTF материалы", "DTF materiallari", "DTF materials"),
+      "Текстиль": tr(context, "Текстиль", "Tekstil", "Textile"),
+      "Термо винил": tr(context, "Термо винил", "Termo vinil", "Heat vinyl"),
+      "DTF материалы": tr(context, "DTF материалы", "DTF materiallari", "DTF materials"),
       "Сублимационные кружки":
-                           tr(context, "Сублимационные кружки", "Sublimatsiya krujkalar", "Sublimation mugs"),
-      "Оборудование":      tr(context, "Оборудование", "Uskunalar", "Equipment"),
+          tr(context, "Сублимационные кружки", "Sublimatsiya krujkalar", "Sublimation mugs"),
+      "Оборудование": tr(context, "Оборудование", "Uskunalar", "Equipment"),
     }[ru] ?? ru;
   }
 
-  /// Перевод имени товара
   String trName(BuildContext context, Map product) {
     final lang = context.watch<LanguageProvider>().localeCode;
     final obj = product['name'];
@@ -63,10 +60,8 @@ class _CatalogPageState extends State<CatalogPage> {
   @override
   Widget build(BuildContext context) {
     const redColor = Color(0xFFE53935);
-
     final appBarTitle = tr(context, 'Каталог', 'Katalog', 'Catalog');
 
-    /// Фильтрация ТОВАРОВ по типу (логика прежняя)
     List<Map<String, dynamic>> filtered = allProducts.where((p) {
       switch (_selectedCategory) {
         case 'Текстиль':
@@ -100,7 +95,6 @@ class _CatalogPageState extends State<CatalogPage> {
       body: Column(
         children: [
 
-          /// 🔥 КАТЕГОРИИ
           SizedBox(
             height: 60,
             child: ListView(
@@ -133,14 +127,13 @@ class _CatalogPageState extends State<CatalogPage> {
             ),
           ),
 
-          /// 🔥 СЕТКА ТОВАРОВ
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: filtered.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                mainAxisExtent: 260,
+                childAspectRatio: 0.70, // 🔥 идеально под карточку
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
               ),
@@ -156,7 +149,7 @@ class _CatalogPageState extends State<CatalogPage> {
   }
 
   // -----------------------------------------------
-  // КАРТОЧКА ТОВАРА
+  // 🔥 КАРТОЧКА ТОВАРА — БЕЗ OVERFLOW НАВСЕГДА
   // -----------------------------------------------
   Widget _productCard(BuildContext context, Map<String, dynamic> product) {
     const redColor = Color(0xFFE53935);
@@ -181,62 +174,65 @@ class _CatalogPageState extends State<CatalogPage> {
         ),
 
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            /// Фото
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+            /// 🔥 Фото — в безопасной зоне, нигде не обрезается
+            Container(
+              height: 140,
+              width: double.infinity,
+              padding: const EdgeInsets.all(8),
               child: Image.asset(
                 product['images'][0],
-                height: 140,
-                width: double.infinity,
-                fit: BoxFit.cover,
+                fit: BoxFit.contain,
               ),
             ),
 
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            /// 🔥 Основной блок — в Expanded (overflow невозможен)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
 
-                  /// Название
-                  Text(
-                    trName(context, product),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
-                  ),
-
-                  const SizedBox(height: 4),
-
-                  /// Цена
-                  Text(
-                    '${NumberFormat('#,###', 'ru').format(product['price'])} UZS',
-                    style: const TextStyle(
-                      color: redColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                    /// Название
+                    Text(
+                      trName(context, product),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
                     ),
-                  ),
 
-                  const SizedBox(height: 8),
+                    const SizedBox(height: 4),
 
-                  /// Кнопка
-                  Container(
-                    alignment: Alignment.center,
-                    height: 34,
-                    decoration: BoxDecoration(
-                      color: redColor,
-                      borderRadius: BorderRadius.circular(8),
+                    /// Цена
+                    Text(
+                      '${NumberFormat('#,###', 'ru').format(product['price'])} UZS',
+                      style: const TextStyle(
+                        color: redColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
                     ),
-                    child: Text(
-                      tr(context, 'Подробнее', 'Batafsil', 'More'),
-                      style: const TextStyle(color: Colors.white, fontSize: 14),
+
+                    const Spacer(),
+
+                    /// Кнопка
+                    Container(
+                      height: 34,
+                      width: double.infinity,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: redColor,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        tr(context, 'Подробнее', 'Batafsil', 'More'),
+                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],

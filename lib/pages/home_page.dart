@@ -62,7 +62,7 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'Худи', 'uz': 'Hudi', 'en': 'Hoodie'},
     'price': 175000,
-    'images': ['assets/images/product_sample.png'],
+    'images': ['assets/images/hudi.png'],
     'description': {
       'ru': 'Тёплый худи с начёсом внутри, плотный материал и качественные швы. Отличный выбор для нанесения объемных принтов и флок-декора.',
       'uz': 'Ichida tukli issiq hudi, zich mato va sifatli tikuvlar. Hajmli printlar va flok dekor uchun yaxshi tanlov.',
@@ -79,7 +79,7 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'Свитшот', 'uz': 'Svitsot', 'en': 'Sweatshirt'},
     'price': 160000,
-    'images': ['assets/images/product_sample.png'],
+    'images': ['assets/images/svitshot.png'],
     'description': {
       'ru': 'Классический свитшот из футера — удобен в носке и хорошо держит форму после стирок. Подходит для нанесения плотных принтов.',
       'uz': 'Futer materiale klassik svitsot — qulay va yuvishdan keyin shaklni saqlaydi. Qalin printlar uchun mos.',
@@ -95,7 +95,7 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'ЭКО сумка', 'uz': 'EKO sumka', 'en': 'ECO Bag'},
     'price': 55000,
-    'images': ['assets/images/product_sample.png'],
+    'images': ['assets/images/eco_bag.png'],
     'description': {
       'ru': 'Экологичная сумка из спанбонда — лёгкая и прочная, удобна для нанесения логотипов и принтов.',
       'uz': 'Spanbonddan yasalgan ekologik sumka — yengil va mustahkam, logotip va printlar uchun qulay.',
@@ -281,7 +281,7 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'Сублимационная кружка', 'uz': 'Sublimatsion krujka', 'en': 'Sublimation Mug'},
     'price': 25000,
-    'images': ['assets/images/product_sample.png'],
+    'images': ['assets/images/glass.png'],
     'description': {
       'ru': 'Белая керамическая кружка 330 мл, специально покрытая для сублимационной печати, устойчива к мытью и ярко передаёт цвета.',
       'uz': 'Sublimatsiya uchun qoplangan 330 ml keramika krujka. Yuvishga chidamli va ranglarni jonli beradi.',
@@ -297,7 +297,7 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'Термос для сублимации', 'uz': 'Termos', 'en': 'Sublimation Thermos'},
     'price': 70000,
-    'images': ['assets/images/product_sample.png'],
+    'images': ['assets/images/termos.png'],
     'description': {
       'ru': 'Металлический термос с покрытием под сублимацию, объём 500 мл. Долговечный и удобный для брендирования.',
       'uz': 'Sublimatsiya uchun qoplangan metall termos, hajmi 500 ml. Uzoq muddatli va brending uchun qulay.',
@@ -314,7 +314,7 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'Плоттер Teneth 70см', 'uz': 'Plotter Teneth 70см', 'en': 'Teneth Plotter 70cm'},
     'price': 6800000,
-    'images': ['assets/images/product_sample.png'],
+    'images': ['assets/images/plotter.png'],
     'description': {
       'ru': 'Профессиональный режущий плоттер шириной до 70 см. Высокая точность, подходит для витринной и промышленной резки винила и термо материалов.',
       'uz': '70 sm gacha kesish qobiliyatiga ega professional plotter. Yuqori aniqlik, vinil va termo materiallar uchun mos.',
@@ -330,7 +330,7 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'Cameo 5', 'uz': 'Cameo 5', 'en': 'Cameo 5'},
     'price': 5800000,
-    'images': ['assets/images/product_sample.png'],
+    'images': ['assets/images/cameo.png'],
     'description': {
       'ru': 'Компактный и удобный плоттер для малого и среднего бизнеса. Подходит для тонкой резки и сложных контуров.',
       'uz': 'Kichik va o‘rta biznes uchun kompakt plotter. Nozik kesish va murakkab konturlar uchun mos.',
@@ -345,7 +345,7 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'Термопресс 38×38', 'uz': 'Termopress 38×38', 'en': 'Heat Press 38×38'},
     'price': 3500000,
-    'images': ['assets/images/product_sample.png'],
+    'images': ['assets/images/termopress.png'],
     'description': {
       'ru': 'Надёжный настольный термопресс 38×38 см для переноса изображений на футболки и другие ткани. Быстрый и прост в использовании.',
       'uz': 'Kiyimlar va boshqa matolarga rasm ko‘chirish uchun 38×38 sm termopress. Tez va oson foydalanish.',
@@ -361,7 +361,7 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'Термопресс 60×40', 'uz': 'Termopress 60×40', 'en': 'Heat Press 60×40'},
     'price': 4200000,
-    'images': ['assets/images/product_sample.png'],
+    'images': ['assets/images/termopress.png'],
     'description': {
       'ru': 'Большой производственный термопресс 60×40 см — подходит для массового производства и крупных изделий.',
       'uz': 'Keng miqyosli ishlab chiqarish uchun 60×40 sm termopress — katta buyumlar uchun mos.',
@@ -377,7 +377,7 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'Термопресс для кепок', 'uz': 'Press kepkalarga', 'en': 'Cap Heat Press'},
     'price': 2200000,
-    'images': ['assets/images/product_sample.png'],
+    'images': ['assets/images/termo_cap.png'],
     'description': {
       'ru': 'Специализированный пресс для нанесения изображений на кепки — компактный и точный.',
       'uz': 'Kepkalarga rasm ko‘chirish uchun maxsus press — kompakt va aniq.',
@@ -392,7 +392,7 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'Термопресс для кружек', 'uz': 'Press krujkalar', 'en': 'Mug Heat Press'},
     'price': 1500000,
-    'images': ['assets/images/product_sample.png'],
+    'images': ['assets/images/termo_glass.png'],
     'description': {
       'ru': 'Пресс для кружек 330 мл — обеспечивает ровный и устойчивый перенос изображения.',
       'uz': '330 ml krujkalar uchun press — rasmni tekis va chidamli ko‘chiradi.',
@@ -407,7 +407,7 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'Мини-пресс', 'uz': 'Mini-press', 'en': 'Mini Press'},
     'price': 1200000,
-    'images': ['assets/images/product_sample.png'],
+    'images': ['assets/images/mini_press.png'],
     'description': {
       'ru': 'Компактный мини-пресс для небольших тиражей и мелкого бизнеса, экономит место и электричество.',
       'uz': 'Kichik biznes uchun kompakt mini-press, joy va elektrni tejaydi.',
@@ -424,7 +424,7 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'DTF краска', 'uz': 'DTF bo‘yoq', 'en': 'DTF Ink'},
     'price': 250000,
-    'images': ['assets/images/product_sample.png'],
+    'images': ['assets/images/dtf_colors.png'],
     'description': {
       'ru': 'Пигментная DTF-краска CMYK + White для высококачественной печати на пленке перед переносом на ткань.',
       'uz': 'DTF CMYK + oq pigmentli siyoh — plyonkaga yuqori sifatli bosim uchun.',
@@ -440,7 +440,7 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'DTF плёнка', 'uz': 'DTF plyonka', 'en': 'DTF Film'},
     'price': 120000,
-    'images': ['assets/images/product_sample.png'],
+    'images': ['assets/images/dtf_plenka.png'],
     'description': {
       'ru': 'Матовая DTF-плёнка, рассчитанная на стабильную передачу красок и лёгкий отдел от основы при переносе.',
       'uz': 'Mat DTF plyonka — ranglarni barqaror uzatish va oson ajratish uchun.',
@@ -455,7 +455,7 @@ final List<Map<String, dynamic>> allProducts = [
   {
     'name': {'ru': 'DTF клей', 'uz': 'DTF yopishtiruvchi', 'en': 'DTF Powder/Adhesive'},
     'price': 85000,
-    'images': ['assets/images/product_sample.png'],
+    'images': ['assets/images/dtf_glue.png'],
     'description': {
       'ru': 'Порошковый клей для закрепления отпечатка при переносе DTF — обеспечивает хорошее сцепление с тканью.',
       'uz': 'DTF ko‘chirishda ishlatiladigan changli yopishtiruvchi — matoga yaxshi yopishadi.',
@@ -508,7 +508,8 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final tCategories = tr(context, "Категории", "Kategoriyalar", "Categories");
     final tPopular = tr(context, "Популярное", "Ommabop", "Popular");
-    final tRecommended = tr(context, "Рекомендуем", "Tavsiya qilamiz", "Recommended");
+    final tRecommended =
+        tr(context, "Рекомендуем", "Tavsiya qilamiz", "Recommended");
     final tAbout = tr(context, "О нас", "Biz haqimizda", "About us");
     final tMore = tr(context, "Подробнее", "Batafsil", "More");
 
@@ -556,7 +557,8 @@ class HomePage extends StatelessWidget {
 
                   // ---- БАННЕР ----
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
                       child: AspectRatio(
@@ -605,8 +607,8 @@ class HomePage extends StatelessWidget {
                         children: [
                           Text(
                             tAbout,
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 10),
                           const Text(
@@ -632,7 +634,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // Заголовок секции
+  // ---- ЗАГОЛОВОК ----
   Widget _sectionTitle(String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -643,7 +645,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // Категория
+  // ---- КАТЕГОРИЯ ----
   Widget _category(BuildContext context, IconData icon, String ruCat) {
     return GestureDetector(
       onTap: () {
@@ -679,7 +681,9 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // 🔥 Исправленная карточка товара (кликабельная!)
+  // ------------------------------------------------
+  // 🔥 Исправленная карточка товара — БЕЗ overflow
+  // ------------------------------------------------
   Widget _productCard(
       BuildContext context, Map<String, dynamic> product, String tMore) {
     const redColor = Color(0xFFE53935);
@@ -706,64 +710,66 @@ class HomePage extends StatelessWidget {
           ],
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(14)),
+            /// Фото — адаптивное, без обрезания
+            Container(
+              height: 140,
+              width: double.infinity,
+              padding: const EdgeInsets.all(8),
               child: Image.asset(
                 product['images'][0],
-                height: 140,
-                width: double.infinity,
-                fit: BoxFit.cover,
+                fit: BoxFit.contain,
               ),
             ),
 
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    trName(context, product),
-                    maxLines: 2,
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w500),
-                  ),
-
-                  const SizedBox(height: 4),
-
-                  Text(
-                    "${NumberFormat('#,###', 'ru').format(product['price'])} UZS",
-                    style: const TextStyle(
-                      color: redColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+            /// Контент — в Expanded (overflow невозможен)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      trName(context, product),
+                      maxLines: 2,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.w500),
                     ),
-                  ),
 
-                  const SizedBox(height: 8),
+                    const SizedBox(height: 4),
 
-                  /// Кнопка "Подробнее"
-                  SizedBox(
-                    width: double.infinity,
-                    child: Container(
-                      height: 34,
-                      decoration: BoxDecoration(
+                    Text(
+                      "${NumberFormat('#,###', 'ru').format(product['price'])} UZS",
+                      style: const TextStyle(
                         color: redColor,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        tMore,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
                       ),
                     ),
-                  ),
-                ],
+
+                    const Spacer(),
+
+                    /// Кнопка "Подробнее"
+                    SizedBox(
+                      width: double.infinity,
+                      child: Container(
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: redColor,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          tMore,
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             )
           ],

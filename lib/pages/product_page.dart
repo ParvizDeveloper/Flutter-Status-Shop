@@ -85,14 +85,27 @@ class _ProductPageState extends State<ProductPage> {
 
             /// IMAGE
             Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.asset(
-                  images[_selectedColorIndex],
-                  height: 260,
-                  width: 260,
-                  fit: BoxFit.cover,
-                ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // 85% ширины экрана
+                  final double size = MediaQuery.of(context).size.width * 0.85;
+            
+                  return Container(
+                    height: size,
+                    width: size,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.asset(
+                        images[_selectedColorIndex],
+                        fit: BoxFit.contain, // 🔥 картинка не обрезается
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(height: 20),
